@@ -8,7 +8,6 @@
 #include "__config.h"
 
 LLVM_MSTL_BEGIN_NAMESPACE_STD
-LLVM_MSTL_CORE_STD
 
 template < typename _Iter >
 class __wrap_iter {
