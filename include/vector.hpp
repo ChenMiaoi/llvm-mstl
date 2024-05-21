@@ -169,6 +169,11 @@ public:
 	  (core::is_same_v< typename allocator_type::value_type, value_type >),
 	  "Allocator::value_type must be same type as value_type" );
 
+	static_assert(
+	  core::is_same_v< allocator_type, typename __alloc_traits::template rebind_alloc< value_type > >,
+	  "[allocator.requirements] states that rebinding an allocator to the same type should result in the "
+	  "original allocator" );
+
 	/**
 		* @brief Default constructor for creating an empty vector.
 		*
@@ -207,8 +212,56 @@ public:
 		* @param __n The size of the vector.
 		*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit vector( size_type __n );
+
+	/**
+		* @brief Constructs a vector with a specified size and allocator.
+		*
+		* @param __n The initial size of the vector.
+		* @param __a The allocator to use for memory allocation.
+		*
+		* This constructor initializes a vector with `__n` default-constructed elements
+		* and uses the specified allocator (`__a`) for memory allocation.
+		*
+		* If `__n` is greater than zero, memory is allocated using the allocator and
+		* default-constructed elements are created using placement new. The vector's
+		* `__end_capm` member is initialized with a nullptr and the allocator (`__a`).
+		*
+		* If an exception is thrown during the construction, the vector is destroyed
+		* and the exception is rethrown.
+		*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit vector( size_type __n, const allocator_type& __a );
+
+	/**
+		* @brief Constructs a vector with a specified size and initial value.
+		*
+		* @param __n The initial size of the vector.
+		* @param __x The initial value to be assigned to each element.
+		*
+		* This constructor initializes a vector with `__n` copies of the specified initial value (`__x`).
+		*
+		* If `__n` is greater than zero, memory is allocated and default-constructed elements are created
+		* using placement new. The vector's `__end_capm` member is initialized with a nullptr and the default allocator.
+		*
+		* If an exception is thrown during the construction, the vector is destroyed and the exception is rethrown.
+		*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( size_type __n, const value_type& __x );
+
+	/**
+	* @brief Constructs a vector with a specified number of elements, each initialized to a given value,
+	*        using a specified allocator.
+	*
+	* This constructor creates a vector with `__n` elements, each initialized to the value `__x`, using the allocator `__a`.
+	* The constructor requires that the type `_Allocator` satisfies the requirements of an Allocator, as determined by
+	* the `__is_allocator` type trait.
+	*
+	* If the allocator requirements are satisfied, the constructor allocates memory for `__n` elements using `__vallocate`,
+	* and then constructs the elements at the end of the vector with the value `__x` using `__construct_at_end`.
+	*
+	* @tparam _Allocator The allocator type used for memory allocation.
+	* @param __n The number of elements to create.
+	* @param __x The value to initialize each element with.
+	* @param __a The allocator instance used for memory allocation.
+	*/
 	template < typename = core::enable_if_t< __is_allocator< _Allocator >::value > >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 	vector( size_type __n, const value_type& __x, const allocator_type& __a )
@@ -220,13 +273,36 @@ public:
 	}
 
 private:
+	/**
+	* @brief Functor to destroy a vector and deallocate its memory.
+	*
+	* This functor is used to destroy a vector and deallocate its memory. It is typically used in exception handling
+	* to ensure proper cleanup when an exception is thrown during vector construction or modification.
+	*
+	* The functor operator `operator()` is called to perform the destruction and deallocation. It first calls
+	* `__vec.__annotate_delete()` to annotate the deletion of the vector (specific implementation-dependent behavior).
+	* Then, if the vector's `__begin` pointer is not nullptr, it clears the vector by calling `__vec.__clear()`,
+	* and deallocates the memory using `__alloc_traits::deallocate` with the vector's allocator and capacity.
+	*/
 	class __destroy_vector {
 	public:
+		/**
+     * @brief Constructs a __destroy_vector object with a vector.
+     * @param __vec The vector to be destroyed and deallocated.
+     */
 		LLVM_MSTL_CONSTEXPR __destroy_vector( vector& __vec )
 		    : __vec( __vec ) {}
 
+		/**
+     * @brief Operator function to destroy the vector and deallocate its memory.
+     *
+     * This operator function is called to destroy the vector and deallocate its memory.
+     * It first calls `__vec.__annotate_delete()` to annotate the deletion of the vector.
+     * Then, if the vector's `__begin` pointer is not nullptr, it clears the vector by calling `__vec.__clear()`,
+     * and deallocates the memory using `__alloc_traits::deallocate` with the vector's allocator and capacity.
+     */
 		LLVM_MSTL_CONSTEXPR_SINCE_CXX20 void operator()() {
-			__vec.__annotate_delete();
+			__vec.__annotate_delete();//!<--- here is not work
 			if ( __vec.__begin != nullptr ) {
 				__vec.__clear();
 				__alloc_traits::deallocate( __vec.__alloc(), __vec.__begin, __vec.capacity() );
@@ -274,7 +350,34 @@ private:
 		__annotate_new( 0 );
 	}
 
+	/**
+	* @brief Constructs a specified number of elements at the end of the vector.
+	* 
+	* This function constructs a specified number of elements at the end of the vector, effectively increasing its size.
+	*
+	* @tparam _Tp The type of elements in the vector.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __n The number of elements to construct.
+	* @return The new end iterator of the vector after construction.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __construct_at_end( size_type __n );
+
+	/**
+	* @brief Constructs elements at the end of the vector with a specified value.
+	*
+	* @param __n The number of elements to be constructed.
+	* @param __x The value to be assigned to each constructed element.
+	*
+	* This function constructs `__n` elements at the end of the vector with the specified value (`__x`).
+	*
+	* It uses placement new to construct elements at the specified positions. The `__n` elements are
+	* constructed starting from the current end position of the vector.
+	*
+	* If an exception is thrown during the construction, the previously constructed elements are
+	* destroyed and the exception is rethrown.
+	*
+	* @return A pointer to the newly constructed element after the construction is complete.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __construct_at_end( size_type __n, const_reference __x );
 
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_contiguous_container( const void*, const void*, const void*, const void* ) const LLVM_MSTL_NOEXCEPT {}
@@ -287,19 +390,35 @@ private:
 		__annotate_contiguous_container( data(), data() + capacity(), data() + size(), data() + capacity() );
 	}
 
+	/**
+		* @brief A transaction for reserving space at the end of a vector.
+		*/
 	struct _ConstructTransaction {
+		/**
+     * @brief Constructs a _ConstructTransaction object.
+     * 
+     * This constructor reserves space at the end of the vector for future elements.
+     *
+     * @param __v The vector to operate on.
+     * @param __n The number of elements to reserve.
+     */
 		LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit _ConstructTransaction( vector& __v, size_type __n )
 		    : __v( __v )
 		    , __pos( __v.__end )
 		    , __new_end( __v.__end + __n ) {}
 
+		/**
+     * @brief Destructs the _ConstructTransaction object.
+     * 
+     * This destructor restores the end position of the vector to the original value.
+     */
 		LLVM_MSTL_CONSTEXPR_SINCE_CXX20 ~_ConstructTransaction() {
 			__v.__end = __pos;
 		}
 
-		vector&             __v;
-		pointer             __pos;
-		const_pointer const __new_end;
+		vector&             __v;      //<--- The vector being operated on
+		pointer             __pos;    //<--- The `original end position` of the vector.
+		const_pointer const __new_end;//<--- The `new end position` of the vector after reserving space.
 	};
 
 	/**
@@ -328,16 +447,28 @@ private:
 		return this->__end_capm.first();
 	}
 
+	/**
+	* @brief Clears the vector by destructing elements from `__end` to the `__begin`.
+	*
+	* This member function clears the vector by destructing elements from `__end` to the `__begin`. It calls
+	* `__base_destruct_at_end` to perform the destruction.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __clear() LLVM_MSTL_NOEXCEPT {
 		__base_destruct_at_end( this->__begin );
 	}
 
+	/**
+	* @brief Destructs elements from `__end` to `__new_last`.
+	*
+	* This member function destructs elements from `__end` to `__new_last`. It is used by `__clear` function.
+	* It iterates from `__end` to `__new_last`, destructing elements using `__alloc_traits::destroy`.
+	* Finally, we use `this->__end = __new_last` to indicates the end of the destruction
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __base_destruct_at_end( pointer __new_last ) LLVM_MSTL_NOEXCEPT {
 		pointer __soon_to_be_end = this->__end;
-		while ( __new_last != __soon_to_be_end ) {
+		while ( __new_last != __soon_to_be_end )
 			__alloc_traits::destroy( __alloc(), core::to_address( --__soon_to_be_end ) );
-			this->__end = __new_last;
-		}
+		this->__end = __new_last;
 	}
 
 	LLVM_MSTL_NORETURN auto __throw_length_error() const {
@@ -362,8 +493,30 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n
 	// use `*this` because we don't want to drop the `this`, just want a copy vec
 	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
 	if ( __n > 0 ) {
-		__vallocate( __n );//<--- allocate a memmory and set `__begin`、`__end` and `__end_capm`
+		__vallocate( __n );       //<--- allocate a memmory and set `__begin`、`__end` and `__end_capm`.
+		__construct_at_end( __n );//!<--- `__vallocate` dosen't make `__end` point the last position
+		                          //!<--- `__construct_at_end` really make `__end` point the right position(the last ather the last one)
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n, const allocator_type& __a )
+    : __end_capm( nullptr, __a ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	if ( __n > 0 ) {
+		__vallocate( __n );
 		__construct_at_end( __n );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n, const value_type& __x ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	if ( __n > 0 ) {
+		__vallocate( __n );
+		__construct_at_end( __n, __x );
 	}
 	__guard.__complete();
 }
@@ -371,8 +524,12 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__construct_at_end( size_type __n ) {
 	_ConstructTransaction __tx( *this, __n );
-	const_pointer         __new_end = __tx.__new_end;
+	const_pointer         __new_end = __tx.__new_end;//<--- get the really pointer, which point the `end position`
 	for ( pointer __pos = __tx.__pos; __pos != __new_end; __tx.__pos = ++__pos ) {
+		//<--- `std::to_address` to gain the origin pointer which obtained the pointer or smart pointer
+		//<--- `static constexpr void construct( Alloc& a, T* p, Args&&... args )`
+		//<--- `p` pointer to the uninitialized storage on which a T object will be constructed
+		//!<--- so, here is actually constructed `pointer` by `pointer`
 		__alloc_traits::construct( this->__alloc(), core::to_address( __pos ) );
 	}
 }
@@ -384,6 +541,7 @@ LLVM_MSTL_INLINE
 	_ConstructTransaction __tx( *this, __n );
 	const_pointer         __new_end = __tx.__new_end;
 	for ( pointer __pos = __tx.__pos; __pos != __new_end; __tx.__pos = ++__pos ) {
+		//<--- this `construct` use the `__x` to initialize when alloc the `__pos`
 		__alloc_traits::construct( this->__alloc(), core::to_address( __pos ), __x );
 	}
 }
