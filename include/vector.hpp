@@ -314,17 +314,54 @@ private:
 	};
 
 public:
+	/**
+	* @brief Returns the size of the vector.
+	*
+	* This member function returns the number of elements in the vector by subtracting the pointer `__begin`
+	* from the pointer `__end` and casting the result to the size type `size_type`.
+	*
+	* @return The number of elements in the vector.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto size() const LLVM_MSTL_NOEXCEPT->size_type {
 		return static_cast< size_type >( this->__end - this->__begin );
 	}
+	/**
+	* @brief Returns the capacity of the vector.
+	*
+	* This member function returns the capacity of the vector, which represents the maximum number of elements
+	* that the vector can hold without reallocating memory. The capacity is calculated by subtracting the pointer
+	* returned by `__end_cap()` from the pointer `__begin` and casting the result to the size type `size_type`.
+	*
+	* @return The capacity of the vector.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto capacity() const LLVM_MSTL_NOEXCEPT->size_type* {
 		return static_cast< size_type >( __end_cap() - this->__begin );
 	}
+	/**
+	* @brief Returns a pointer to the underlying data of the vector.
+	*
+	* This member function returns a pointer to the underlying data of the vector. The pointer is obtained
+	* by using the `to_address` function from the C++20 standard library. It converts the iterator `__begin`
+	* to a pointer of type `value_type*`.
+	*
+	* @return A pointer to the underlying data of the vector.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto data() LLVM_MSTL_NOEXCEPT->value_type* {
 		return core::to_address( this->__begin );
 	}
 
 private:
+	/**
+	* @brief Allocates memory for at least `__n` elements.
+	*
+	* This function allocates memory using the allocator `__alloc()` for at least `__n` elements.
+	* If `__n` exceeds the maximum size that can be allocated, it throws a `length_error` exception.
+	* The allocated memory is stored in the `__begin` and `__end` member variables, with `__begin`
+	* and `__end` pointing to the beginning of the allocated memory. The `__end_cap()` member function
+	* is modified to point to the last position of the allocated memory.
+	*
+	* @param __n The minimum number of elements to allocate memory for.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __vallocate( size_type __n ) -> void {
 		if ( __n > max_size() ) {
 			__throw_length_error();
