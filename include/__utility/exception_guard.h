@@ -35,8 +35,8 @@ struct __exception_guard_exceptions {
     * @param __rollback The rollback function or callable object.
     */
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit __exception_guard_exceptions( _Rollback __rollback )
-	    : __rollback( core::move( __rollback ) )
-	    , __completed( false ) {}
+			: __rollback( core::move( __rollback ) )
+			, __completed( false ) {}
 
 	/**
     * @brief Move constructor for the exception guard.
@@ -47,9 +47,9 @@ struct __exception_guard_exceptions {
     * @param __other The other exception guard to be moved.
     */
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 __exception_guard_exceptions( __exception_guard_exceptions&& __other )
-	  LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< _Rollback > )
-	    : __rollback( core::move( __other.__rollback ) )
-	    , __completed( __other.__completed ) {
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< _Rollback > )
+			: __rollback( core::move( __other.__rollback ) )
+			, __completed( __other.__completed ) {
 		__other.__completed = true;
 	}
 

@@ -46,7 +46,7 @@ public:
 	pointer                                      __begin;   //<--- Pointer to the beginning of the constructed range.
 	pointer                                      __end;     //<--- Pointer to the end of the constructed range.
 	__compressed_pair< pointer, allocator_type > __end_capm;//<--- '__end_capm.first' holds the reference to '__end',
-	                                                        //<--- so here '__end_cap()' is modified to point to the last position of the element's last position
+																													//<--- so here '__end_cap()' is modified to point to the last position of the element's last position
 
 	using __alloc_ref       = core::add_lvalue_reference_t< allocator_type >;
 	using __alloc_const_ref = core::add_lvalue_reference_t< allocator_type >;
@@ -74,7 +74,7 @@ public:
   * @throws None
   */
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 __split_buffer()
-	  LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > );
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > );
 	/**
   * @brief Constructor for the __split_buffer with an allocator.
   *
@@ -127,34 +127,34 @@ public:
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_TEMPLATE_INLINE
-  LLVM_MSTL_CONSTEXPR_SINCE_CXX20
-  __split_buffer< _Tp, _Allocator >::__split_buffer() LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > )
-    : __first( nullptr )
-    , __begin( nullptr )
-    , __end( nullptr )
-    , __end_capm( nullptr, __default_init_tag() ) {}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	__split_buffer< _Tp, _Allocator >::__split_buffer() LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > )
+		: __first( nullptr )
+		, __begin( nullptr )
+		, __end( nullptr )
+		, __end_capm( nullptr, __default_init_tag() ) {}
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_TEMPLATE_INLINE
-  LLVM_MSTL_CONSTEXPR_SINCE_CXX20
-  __split_buffer< _Tp, _Allocator >::__split_buffer( __alloc_rr& __a )
-    : __first( nullptr )
-    , __begin( nullptr )
-    , __end( nullptr )
-    , __end_capm( nullptr, __a ) {}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	__split_buffer< _Tp, _Allocator >::__split_buffer( __alloc_rr& __a )
+		: __first( nullptr )
+		, __begin( nullptr )
+		, __end( nullptr )
+		, __end_capm( nullptr, __a ) {}
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_TEMPLATE_INLINE
-  LLVM_MSTL_CONSTEXPR_SINCE_CXX20
-  __split_buffer< _Tp, _Allocator >::__split_buffer( const __alloc_rr& __a )
-    : __first( nullptr )
-    , __begin( nullptr )
-    , __end( nullptr )
-    , __end_capm( nullptr, __a ) {}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	__split_buffer< _Tp, _Allocator >::__split_buffer( const __alloc_rr& __a )
+		: __first( nullptr )
+		, __begin( nullptr )
+		, __end( nullptr )
+		, __end_capm( nullptr, __a ) {}
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 __split_buffer< _Tp, _Allocator >::__split_buffer( size_type __cap, size_type __start, __alloc_rr& __a )
-    : __end_capm( nullptr, __a ) {
+		: __end_capm( nullptr, __a ) {
 	if ( __cap == 0 ) __first = nullptr;
 	else {
 		auto __allocation = __allocate_at_least( __alloc(), __cap );

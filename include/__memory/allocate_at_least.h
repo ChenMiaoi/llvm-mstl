@@ -33,7 +33,7 @@ struct __allocation_result {
  */
 template < typename _Alloc >
 LLVM_MSTL_NODISCARD LLVM_MSTL_CONSTEXPR auto __allocate_at_least( _Alloc& __alloc, size_t __n )
-  -> __allocation_result< typename core::allocator_traits< _Alloc >::pointer > {
+	-> __allocation_result< typename core::allocator_traits< _Alloc >::pointer > {
 	return { __alloc.allocate( __n ), __n };
 }
 

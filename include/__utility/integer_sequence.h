@@ -20,7 +20,7 @@ struct __integer_sequence {
 #if __has_builtin( __make_integer_seq )
 template < size_t _Ep, size_t _Sp >
 using __make_indices_imp =
-  typename __make_integer_seq< __integer_sequence, size_t, _Ep - _Sp >::template __to_tuple_indices< _Sp >;
+	typename __make_integer_seq< __integer_sequence, size_t, _Ep - _Sp >::template __to_tuple_indices< _Sp >;
 #endif
 
 LLVM_MSTL_END_NAMESPACE_STD

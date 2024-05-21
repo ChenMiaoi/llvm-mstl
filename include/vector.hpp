@@ -169,13 +169,13 @@ public:
 	using const_reverse_iterator = core::reverse_iterator< const_iterator >;
 
 	static_assert(
-	  (core::is_same_v< typename allocator_type::value_type, value_type >),
-	  "Allocator::value_type must be same type as value_type" );
+		(core::is_same_v< typename allocator_type::value_type, value_type >),
+		"Allocator::value_type must be same type as value_type" );
 
 	static_assert(
-	  core::is_same_v< allocator_type, typename __alloc_traits::template rebind_alloc< value_type > >,
-	  "[allocator.requirements] states that rebinding an allocator to the same type should result in the "
-	  "original allocator" );
+		core::is_same_v< allocator_type, typename __alloc_traits::template rebind_alloc< value_type > >,
+		"[allocator.requirements] states that rebinding an allocator to the same type should result in the "
+		"original allocator" );
 
 	/**
 		* @brief Default constructor for creating an empty vector.
@@ -188,7 +188,7 @@ public:
 		* @tparam allocator_type The type of the allocator used by the vector.
 		*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector()
-	  LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > );
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_default_constructible_v< allocator_type > );
 
 	/**
 		* @brief Explicit constructor for creating a vector with a specified allocator.
@@ -201,7 +201,7 @@ public:
 		* @param __a The allocator object to be used by the vector.
 		*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit vector( const allocator_type& __a ) LLVM_MSTL_NOEXCEPT
-	    : __end_capm( nullptr, __a ) {}
+			: __end_capm( nullptr, __a ) {}
 
 	/**
 		* @brief Constructs a vector with a specified size.
@@ -268,7 +268,7 @@ public:
 	template < typename = core::enable_if_t< __is_allocator< _Allocator >::value > >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 	vector( size_type __n, const value_type& __x, const allocator_type& __a )
-	    : __end_capm( nullptr, __a ) {
+			: __end_capm( nullptr, __a ) {
 		if ( __n > 0 ) {
 			__vallocate( __n );
 			__construct_at_end( __n, __x );
@@ -293,13 +293,13 @@ public:
 	* @throws Any exception thrown during element construction or memory allocation.
 	*/
 	template <
-	  typename _InputIterator,
-	  core::enable_if_t<
-	    __is_exactly_cpp17_input_iterator< _InputIterator >::value &&
-	      core::is_constructible_v<
-	        value_type,
-	        typename core::iterator_traits< _InputIterator >::reference >,
-	    int > = 0 >
+		typename _InputIterator,
+		core::enable_if_t<
+			__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _InputIterator >::reference >,
+			int > = 0 >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _InputIterator __first, _InputIterator __last );
 
 private:
@@ -321,7 +321,7 @@ private:
      * @param __vec The vector to be destroyed and deallocated.
      */
 		LLVM_MSTL_CONSTEXPR __destroy_vector( vector& __vec )
-		    : __vec( __vec ) {}
+				: __vec( __vec ) {}
 
 		/**
      * @brief Operator function to destroy the vector and deallocate its memory.
@@ -414,7 +414,7 @@ private:
 		__begin           = __allocation.ptr;            //<--- causes `__begin` to point to the address of the memory allocated by the allocator
 		__end             = __allocation.ptr;            //<--- causes' __end 'to point to the address of the memory allocated by the allocator
 		__end_cap()       = __begin + __allocation.count;//<--- '__end_capm.first' holds the reference to '__end',
-		                                                 //<--- so here '__end_cap()' is modified to point to the last position of the element's last position
+																										 //<--- so here '__end_cap()' is modified to point to the last position of the element's last position
 
 		//! here `__annotate_new` doing nothing
 		__annotate_new( 0 );
@@ -476,9 +476,9 @@ private:
      * @param __n The number of elements to reserve.
      */
 		LLVM_MSTL_CONSTEXPR_SINCE_CXX20 explicit _ConstructTransaction( vector& __v, size_type __n )
-		    : __v( __v )
-		    , __pos( __v.__end )
-		    , __new_end( __v.__end + __n ) {}
+				: __v( __v )
+				, __pos( __v.__end )
+				, __new_end( __v.__end + __n ) {}
 
 		/**
      * @brief Destructs the _ConstructTransaction object.
@@ -571,9 +571,9 @@ private:
 	pointer                                      __begin    = nullptr;//<--- point the `first` element in vector
 	pointer                                      __end      = nullptr;//<--- point the last element in vector(not really `last`, `the last afther the last one`)
 	__compressed_pair< pointer, allocator_type > __end_capm =         //<--- use less memory to store the end point and allocator
-	                                                                  //<--- the `cap.first` is the `end`, point the `last element afther the last one`
-	                                                                  //<--- the `cap.second` is the `allocator`, use to manage memory's alloc and release
-	  __compressed_pair< pointer, allocator_type >( nullptr, __default_init_tag() );
+																																		//<--- the `cap.first` is the `end`, point the `last element afther the last one`
+																																		//<--- the `cap.second` is the `allocator`, use to manage memory's alloc and release
+		__compressed_pair< pointer, allocator_type >( nullptr, __default_init_tag() );
 };
 
 template < typename _Tp, typename _Allocator >
@@ -584,14 +584,14 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n
 	if ( __n > 0 ) {
 		__vallocate( __n );       //<--- allocate a memmory and set `__begin`、`__end` and `__end_capm`.
 		__construct_at_end( __n );//!<--- `__vallocate` dosen't make `__end` point the last position
-		                          //!<--- `__construct_at_end` really make `__end` point the right position(the last ather the last one)
+															//!<--- `__construct_at_end` really make `__end` point the right position(the last ather the last one)
 	}
 	__guard.__complete();
 }
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n, const allocator_type& __a )
-    : __end_capm( nullptr, __a ) {
+		: __end_capm( nullptr, __a ) {
 	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
 	if ( __n > 0 ) {
 		__vallocate( __n );
@@ -612,13 +612,13 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n
 
 template < typename _Tp, typename _Allocator >
 template <
-  typename _InputIterator,
-  core::enable_if_t<
-    __is_exactly_cpp17_input_iterator< _InputIterator >::value &&
-      core::is_constructible_v<
-        _Tp,
-        typename core::iterator_traits< _InputIterator >::reference >,
-    int > >
+	typename _InputIterator,
+	core::enable_if_t<
+		__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _InputIterator >::reference >,
+		int > >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( _InputIterator __first, _InputIterator __last ) {
 	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
 	for ( ; __first != __last; ++__first )
@@ -641,8 +641,8 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__construct_at_e
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_INLINE
-  LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
-  vector< _Tp, _Allocator >::__construct_at_end( size_type __n, const_reference __x ) {
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+	vector< _Tp, _Allocator >::__construct_at_end( size_type __n, const_reference __x ) {
 	_ConstructTransaction __tx( *this, __n );
 	const_pointer         __new_end = __tx.__new_end;
 	for ( pointer __pos = __tx.__pos; __pos != __new_end; __tx.__pos = ++__pos ) {
@@ -665,9 +665,9 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__emplace_back_s
 template < typename _Tp, typename _Allocator >
 template < typename... _Args >
 LLVM_MSTL_TEMPLATE_INLINE
-  LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
-  vector< _Tp, _Allocator >::emplace_back( _Args&&... __args )
-    -> typename vector< _Tp, _Allocator >::reference {
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+	vector< _Tp, _Allocator >::emplace_back( _Args&&... __args )
+		-> typename vector< _Tp, _Allocator >::reference {
 	if ( this->__end < this->__end_cap() ) {
 		__construct_one_at_end( std::forward< _Args >( __args )... );
 	} else {

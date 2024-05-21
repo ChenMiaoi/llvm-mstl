@@ -47,9 +47,9 @@ struct __is_allocator : core::false_type {};
  */
 template < typename _Alloc >
 struct __is_allocator<
-  _Alloc,
-  __void_t< typename _Alloc::value_type >,
-  __void_t< decltype( core::declval< _Alloc& >().allocate( core::size_t( 0 ) ) ) > > : core::true_type {
+	_Alloc,
+	__void_t< typename _Alloc::value_type >,
+	__void_t< decltype( core::declval< _Alloc& >().allocate( core::size_t( 0 ) ) ) > > : core::true_type {
 };
 
 LLVM_MSTL_END_NAMESPACE_STD

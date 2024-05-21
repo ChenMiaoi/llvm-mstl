@@ -60,7 +60,7 @@ public:
  */
 template < typename _Tp, typename _Up, bool = __has_iterator_category< core::iterator_traits< _Tp > >::value >
 struct __has_iterator_category_convertible_to
-    : core::is_convertible< typename core::iterator_traits< _Tp >::iterator_category, _Up > {};
+		: core::is_convertible< typename core::iterator_traits< _Tp >::iterator_category, _Up > {};
 
 /**
  * @brief Specialization for when the iterator category is not convertible to the target type.
@@ -84,10 +84,10 @@ struct __has_iterator_category_convertible_to< _Tp, _Up, false > : core::false_t
  */
 template < typename _Tp >
 struct __is_exactly_cpp17_input_iterator
-    : public core::integral_constant<
-        bool,
-        __has_iterator_category_convertible_to< _Tp, core::input_iterator_tag >::value &&
-          !__has_iterator_category_convertible_to< _Tp, core::forward_iterator_tag >::value > {};
+		: public core::integral_constant<
+				bool,
+				__has_iterator_category_convertible_to< _Tp, core::input_iterator_tag >::value &&
+					!__has_iterator_category_convertible_to< _Tp, core::forward_iterator_tag >::value > {};
 
 
 LLVM_MSTL_END_NAMESPACE_STD

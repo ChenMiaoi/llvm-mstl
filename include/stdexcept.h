@@ -13,12 +13,11 @@ LLVM_MSTL_BEGIN_NAMESPACE_STD
 
 LLVM_MSTL_CORE_STD
 
-LLVM_MSTL_NORETURN LLVM_MSTL_INLINE
-void __throw_length_error(const char* __msg) {
-	static_cast<void>(__msg);
+LLVM_MSTL_NORETURN LLVM_MSTL_INLINE void __throw_length_error( const char* __msg ) {
+	static_cast< void >( __msg );
 	core::abort();
 }
 
 LLVM_MSTL_END_NAMESPACE_STD
 
-#endif //LLVM_MSTL_STDEXCEPT_H
+#endif//LLVM_MSTL_STDEXCEPT_H

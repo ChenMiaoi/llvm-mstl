@@ -49,7 +49,7 @@ struct __compressed_pair_elem {
 		* @brief Value constructor with __value_init_tag.
 		*/
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __value_init_tag )
-	    : __value__() {}
+			: __value__() {}
 
 	/**
 		* @brief Value constructor with forwarding reference.
@@ -57,11 +57,11 @@ struct __compressed_pair_elem {
 		* @param __u The argument to be forwarded.
 		*/
 	template <
-	  typename _Up,
-	  typename = core::enable_if_t<
-	    !core::is_same_v< __compressed_pair_elem, typename core::decay_t< _Up > > > >
+		typename _Up,
+		typename = core::enable_if_t<
+			!core::is_same_v< __compressed_pair_elem, typename core::decay_t< _Up > > > >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( _Up&& __u )
-	    : __value__( core::forward< _Up >( __u ) ) {}
+			: __value__( core::forward< _Up >( __u ) ) {}
 
 	/**
 		* @brief Piecewise constructor with tuple indices.
@@ -72,8 +72,8 @@ struct __compressed_pair_elem {
 		*/
 	template < typename... _Args, size_t... _Indices >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem(
-	  core::piecewise_construct_t, core::tuple< _Args... > __args, __tuple_indices< _Indices... > )
-	    : __value__( core::forward< _Args >( core::get< _Indices >( __args ) )... ) {}
+		core::piecewise_construct_t, core::tuple< _Args... > __args, __tuple_indices< _Indices... > )
+			: __value__( core::forward< _Args >( core::get< _Indices >( __args ) )... ) {}
 
 	/**
 		* @brief Returns a reference to the stored value.
@@ -105,20 +105,20 @@ struct __compressed_pair_elem< _Tp, _Idx, true > : private _Tp {
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem()                     = default;
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __default_init_tag ) = default;
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __value_init_tag )
-	    : __value_type() {}
+			: __value_type() {}
 
 	template <
-	  typename _Up,
-	  typename = core::enable_if_t<
-	    !core::is_same_v< __compressed_pair_elem, typename core::decay_t< _Up > > > >
+		typename _Up,
+		typename = core::enable_if_t<
+			!core::is_same_v< __compressed_pair_elem, typename core::decay_t< _Up > > > >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( _Up&& __u )
-	    : __value_type( core::forward< _Up >( __u ) ) {}
+			: __value_type( core::forward< _Up >( __u ) ) {}
 
 
 	template < typename... _Args, size_t... _Indices >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem(
-	  core::piecewise_construct_t, core::tuple< _Args... > __args, __tuple_indices< _Indices... > )
-	    : __value_type( core::forward< _Args >( core::get< _Indices >( __args ) )... ) {}
+		core::piecewise_construct_t, core::tuple< _Args... > __args, __tuple_indices< _Indices... > )
+			: __value_type( core::forward< _Args >( core::get< _Indices >( __args ) )... ) {}
 
 	LLVM_MSTL_CONSTEXPR auto __get() LLVM_MSTL_NOEXCEPT->reference {
 		return *this;
@@ -153,12 +153,12 @@ struct __compressed_pair_elem< _Tp, _Idx, true > : private _Tp {
  */
 template < typename _T1, typename _T2 >
 class __compressed_pair : private __compressed_pair_elem< _T1, 0 >,
-                          private __compressed_pair_elem< _T2, 1 > {
+													private __compressed_pair_elem< _T2, 1 > {
 public:
 	static_assert(
-	  core::is_same_v< _T1, _T1 >,
-	  "__compressed_pair cannot be instantiated when T1 and T2 are the same type; "
-	  "The current implementation is NOT ABI-compatible with the previous implementation for this configuration" );
+		core::is_same_v< _T1, _T1 >,
+		"__compressed_pair cannot be instantiated when T1 and T2 are the same type; "
+		"The current implementation is NOT ABI-compatible with the previous implementation for this configuration" );
 
 	using _Base1 = __compressed_pair_elem< _T1, 0 >;//<--- The base element for the first type.
 	using _Base2 = __compressed_pair_elem< _T2, 1 >;//<--- The base element for the second type.
@@ -175,13 +175,13 @@ public:
 		* Constructs a compressed pair with default-initialized values for both types.
 		*/
 	template <
-	  bool _Dummy = true,
-	  typename    = core::enable_if_t<
+		bool _Dummy = true,
+		typename    = core::enable_if_t<
       __dependent_type< core::is_default_constructible< _T1 >, _Dummy >::value &&
       __dependent_type< core::is_default_constructible< _T2 >, _Dummy >::value > >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair()
-	    : _Base1( __value_init_tag() )
-	    , _Base2( __value_init_tag() ) {}
+			: _Base1( __value_init_tag() )
+			, _Base2( __value_init_tag() ) {}
 
 	/**
 		* @brief Value constructor.
@@ -195,8 +195,8 @@ public:
 		*/
 	template < typename _U1, typename _U2 >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair( _U1&& __t1, _U2&& __t2 )
-	    : _Base1( core::forward< _U1 >( __t1 ) )
-	    , _Base2( core::forward< _U2 >( __t2 ) ) {}
+			: _Base1( core::forward< _U1 >( __t1 ) )
+			, _Base2( core::forward< _U2 >( __t2 ) ) {}
 
 	/**
 		* @brief Piecewise constructor with tuples for initializing the compressed pair.
@@ -211,11 +211,11 @@ public:
 		*/
 	template < typename... _Args1, typename... _Args2 >
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair(
-	  core::piecewise_construct_t __pc,
-	  core::tuple< _Args1... >    __first_args,
-	  core::tuple< _Args2... >    __second_args )
-	    : _Base1( __pc, core::move( __first_args ), typename __make_tuple_indices< sizeof...( _Args1 ) >::type() )
-	    , _Base2( __pc, core::move( __second_args ), typename __make_tuple_indices< sizeof...( _Args2 ) >::type() ) {}
+		core::piecewise_construct_t __pc,
+		core::tuple< _Args1... >    __first_args,
+		core::tuple< _Args2... >    __second_args )
+			: _Base1( __pc, core::move( __first_args ), typename __make_tuple_indices< sizeof...( _Args1 ) >::type() )
+			, _Base2( __pc, core::move( __second_args ), typename __make_tuple_indices< sizeof...( _Args2 ) >::type() ) {}
 
 	LLVM_MSTL_CONSTEXPR auto first() LLVM_MSTL_NOEXCEPT->typename _Base1::reference {
 		return static_cast< _Base1& >( *this ).__get();
@@ -242,18 +242,18 @@ public:
 	}
 
 	LLVM_MSTL_CONSTEXPR auto swap( __compressed_pair& __x )
-	  LLVM_MSTL_NOEXCEPT_V(
-	    core::is_nothrow_swappable_v< _T1 >&& core::is_nothrow_swappable_v< _T2 > ) {
+		LLVM_MSTL_NOEXCEPT_V(
+			core::is_nothrow_swappable_v< _T1 >&& core::is_nothrow_swappable_v< _T2 > ) {
 		core::swap( first(), __x.first() );
 		core::swap( second(), __x.second() );
 	}
 
 	template < typename _Tt1, typename _Tt2 >
 	LLVM_MSTL_TEMPLATE_INLINE
-	  LLVM_MSTL_CONSTEXPR auto
-	  swap( __compressed_pair< _Tt1, _Tt2 >& __x, __compressed_pair< _Tt1, _Tt2 >& __y )
-	    LLVM_MSTL_NOEXCEPT_V(
-	      core::is_nothrow_swappable_v< _Tt1 >&& core::is_nothrow_swappable_v< _Tt2 > ) {
+		LLVM_MSTL_CONSTEXPR auto
+		swap( __compressed_pair< _Tt1, _Tt2 >& __x, __compressed_pair< _Tt1, _Tt2 >& __y )
+			LLVM_MSTL_NOEXCEPT_V(
+				core::is_nothrow_swappable_v< _Tt1 >&& core::is_nothrow_swappable_v< _Tt2 > ) {
 		__x.swap( __y );
 	}
 };
