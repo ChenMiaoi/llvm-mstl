@@ -15,6 +15,7 @@
 #include "__config.h"
 #include "__iterator/iterator_traits.h"
 #include "__iterator/wrap_iter.h"
+#include "__memory/allocate_at_least.h"
 #include "__memory/compress_pair.h"
 #include "__split_buffer.h"
 #include "__type_traits/is_allocator.h"
@@ -409,7 +410,7 @@ private:
 		 * 
 		 * @return return the `allocation_result<class Pointer, class SizeType = std::size_t>`
 		 */
-		auto __allocation = core::allocator_traits< allocator_type >::allocate_at_least( __alloc(), __n );
+		auto __allocation = __allocate_at_least( __alloc(), __n );
 		__begin           = __allocation.ptr;            //<--- causes `__begin` to point to the address of the memory allocated by the allocator
 		__end             = __allocation.ptr;            //<--- causes' __end 'to point to the address of the memory allocated by the allocator
 		__end_cap()       = __begin + __allocation.count;//<--- '__end_capm.first' holds the reference to '__end',
