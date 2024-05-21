@@ -12,10 +12,10 @@
 
 #ifdef __clang__
 #define LLVM_MSTL_CLANG_VERSION 1
-#elifdef __gnu__
-#define LLVM_MSTL_GNU_VERSION 1
-#elifdef __msvc__
-#define LLVM_MSTL_MSVC_VERSION 1
+// #elifdef __gnu__
+// #define LLVM_MSTL_GNU_VERSION 1
+// #elifdef __msvc__
+// #define LLVM_MSTL_MSVC_VERSION 1
 #endif
 
 #ifdef LLVM_MSTL_CLANG_VERSION
@@ -23,8 +23,8 @@
 #define LLVM_MSTL_TEMPLATE_INLINE [[clang::always_inline]]
 #define LLVM_MSTL_NORETURN        [[noreturn]]
 #define LLVM_MSTL_INLINE          [[clang::always_inline]]
-#elifdef LLVM_MSTL_GNU_VERSION
-#elifdef LLVM_MSTL_MSVC_VERSION
+// #elifdef LLVM_MSTL_GNU_VERSION
+// #elifdef LLVM_MSTL_MSVC_VERSION
 #endif
 
 #ifndef LLVM_MSTL_STD_VERSION

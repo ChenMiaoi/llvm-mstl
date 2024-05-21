@@ -13,8 +13,10 @@
  */
 
 #include "__config.h"
+#include "__iterator/iterator_traits.h"
 #include "__iterator/wrap_iter.h"
 #include "__memory/compress_pair.h"
+#include "__split_buffer.h"
 #include "__type_traits/is_allocator.h"
 #include "__utility/exception_guard.h"
 #include "stdexcept.h"
@@ -272,6 +274,33 @@ public:
 		}
 	}
 
+	/**
+	* @brief Constructs a vector from a range defined by two input iterators.
+	* 
+	* This constructor constructs a vector by inserting elements from a range defined by two input iterators,
+	* effectively copying the elements in the range to the vector.
+	*
+	* @code{cc}  
+	* // Create a vector from a range defined by input iterators
+	* int arr[] = { 1, 2, 3, 4, 5 };
+	* nya::vector<int> vec( arr, arr + 5 );
+	* @endcode  
+	* 
+	* @tparam _InputIterator The type of the input iterators defining the range.
+	* @param __first The beginning of the range to construct the vector from.
+	* @param __last The end of the range to construct the vector from.
+	* @throws Any exception thrown during element construction or memory allocation.
+	*/
+	template <
+	  typename _InputIterator,
+	  core::enable_if_t<
+	    __is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+	      core::is_constructible_v<
+	        value_type,
+	        typename core::iterator_traits< _InputIterator >::reference >,
+	    int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _InputIterator __first, _InputIterator __last );
+
 private:
 	/**
 	* @brief Functor to destroy a vector and deallocate its memory.
@@ -350,6 +379,9 @@ public:
 		return core::to_address( this->__begin );
 	}
 
+	template < typename... _Args >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto emplace_back( _Args&&... __args ) -> reference;
+
 private:
 	/**
 	* @brief Allocates memory for at least `__n` elements.
@@ -417,6 +449,9 @@ private:
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __construct_at_end( size_type __n, const_reference __x );
 
+	template < typename... _Args >
+	LLVM_MSTL_TEMPLATE_INLINE LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __emplace_back_slow_path( _Args&&... __args );
+
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_contiguous_container( const void*, const void*, const void*, const void* ) const LLVM_MSTL_NOEXCEPT {}
 
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_new( size_type __current_size ) const LLVM_MSTL_NOEXCEPT {
@@ -457,6 +492,22 @@ private:
 		pointer             __pos;    //<--- The `original end position` of the vector.
 		const_pointer const __new_end;//<--- The `new end position` of the vector after reserving space.
 	};
+
+	/**
+	* @brief Constructs a single element at the end of the vector.
+	* 
+	* This function constructs a single element at the end of the vector, effectively increasing its size by one.
+	* 
+	* @tparam _Args Variadic template parameter pack for the types of arguments used for construction.
+	* @param __args Arguments to be forwarded for element construction.
+	* @return The new end iterator of the vector after construction.
+ 	*/
+	template < class... _Args >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __construct_one_at_end( _Args&&... __args ) {
+		_ConstructTransaction __tx( *this, 1 );
+		__alloc_traits::construct( this->__alloc(), core::to_address( __tx.__pos ), std::forward< _Args >( __args )... );
+		++__tx.__pos;
+	}
 
 	/**
 	 * @brief get the allocator object for vector
@@ -559,6 +610,22 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n
 }
 
 template < typename _Tp, typename _Allocator >
+template <
+  typename _InputIterator,
+  core::enable_if_t<
+    __is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+      core::is_constructible_v<
+        _Tp,
+        typename core::iterator_traits< _InputIterator >::reference >,
+    int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( _InputIterator __first, _InputIterator __last ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	for ( ; __first != __last; ++__first )
+		emplace_back( *__first );
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__construct_at_end( size_type __n ) {
 	_ConstructTransaction __tx( *this, __n );
 	const_pointer         __new_end = __tx.__new_end;//<--- get the really pointer, which point the `end position`
@@ -581,6 +648,31 @@ LLVM_MSTL_INLINE
 		//<--- this `construct` use the `__x` to initialize when alloc the `__pos`
 		__alloc_traits::construct( this->__alloc(), core::to_address( __pos ), __x );
 	}
+}
+
+template < typename _Tp, typename _Allocator >
+template < typename... _Args >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__emplace_back_slow_path( _Args&&... __args ) {
+	allocator_type&                               __a = this->__alloc();
+	__split_buffer< value_type, allocator_type& > __v( __recommend( size() + 1 ), size(), __a );
+	__alloc_traits::construct( __a, core::to_address( __v.__end ), std::forward< _Args >( __args )... );
+	__v.__end++;
+	__swap_out_circular_buffer( __v );
+}
+
+
+template < typename _Tp, typename _Allocator >
+template < typename... _Args >
+LLVM_MSTL_TEMPLATE_INLINE
+  LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+  vector< _Tp, _Allocator >::emplace_back( _Args&&... __args )
+    -> typename vector< _Tp, _Allocator >::reference {
+	if ( this->__end < this->__end_cap() ) {
+		__construct_one_at_end( std::forward< _Args >( __args )... );
+	} else {
+		__emplace_back_slow_path( std::forward< _Args >( __args )... );
+	}
+	return this->back();
 }
 
 LLVM_MSTL_END_NAMESPACE_STD
