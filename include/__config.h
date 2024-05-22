@@ -23,7 +23,7 @@
 #define LLVM_MSTL_TEMPLATE_INLINE [[clang::always_inline]]
 #define LLVM_MSTL_NORETURN        [[noreturn]]
 #define LLVM_MSTL_NODISCARD       [[nodiscard]]
-#define LLVM_MSTL_INLINE          [[clang::always_inline]]
+#define LLVM_MSTL_INLINE          [[clang::always_inline]] inline
 // #elifdef LLVM_MSTL_GNU_VERSION
 // #elifdef LLVM_MSTL_MSVC_VERSION
 #endif
