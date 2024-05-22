@@ -20,10 +20,10 @@
 
 #ifdef LLVM_MSTL_CLANG_VERSION
 #define LLVM_MSTL_TEMPLATE_VIS    [[clang::type_visibility( "default" )]]
-#define LLVM_MSTL_TEMPLATE_INLINE [[clang::always_inline]]
+#define LLVM_MSTL_TEMPLATE_INLINE inline
 #define LLVM_MSTL_NORETURN        [[noreturn]]
 #define LLVM_MSTL_NODISCARD       [[nodiscard]]
-#define LLVM_MSTL_INLINE          [[clang::always_inline]] inline
+#define LLVM_MSTL_INLINE          inline
 // #elifdef LLVM_MSTL_GNU_VERSION
 // #elifdef LLVM_MSTL_MSVC_VERSION
 #endif
