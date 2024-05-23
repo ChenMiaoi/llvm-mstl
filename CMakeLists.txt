@@ -34,20 +34,6 @@ else()
     message(FATAL_ERROR "Clang version must be greater than or equal to 14.")
 endif()
 
-set(CMAKE_C_COMPILER ${CLANG_EXECUTABLE})
-set(CMAKE_CXX_COMPILER ${CLANGXX_EXECUTABLE})
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
-
-list(APPEND LLVM_MSTL_FLAGS -pedantic
-    -Wall -Wextra -Werror -Wwrite-strings
-    -Wshadow -Winit-self -Wcast-align -Wformat=2 -Wmissing-prototypes
-    -Wstrict-overflow=2 -Wcast-qual -Wundef -Wswitch-default -Wconversion
-    -Wc++-compat -fstack-protector-strong -Wcomma -Wdouble-promotion -Wparentheses
-    -Wunused-macros -Wmissing-variable-declarations -Wused-but-marked-unused
-    -Wswitch-enum
-  )
-
 set(GTEST_VERSION "v1.14.0")
 set(GTEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest)
 
@@ -97,6 +83,23 @@ endif()
 
 option(gtest_force_shared_crt "Use shared (DLL) run-time lib even when Google Test is built as static lib." ON)
 
+add_subdirectory(${GTEST_ROOT})
+include_directories(${gtest_SOURCE_DIR}/include)
+
+set(CMAKE_C_COMPILER ${CLANG_EXECUTABLE})
+set(CMAKE_CXX_COMPILER ${CLANGXX_EXECUTABLE})
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+
+list(APPEND LLVM_MSTL_FLAGS -pedantic
+    -Wall -Wextra -Werror -Wwrite-strings
+    -Wshadow -Winit-self -Wcast-align -Wformat=2 -Wmissing-prototypes
+    -Wstrict-overflow=2 -Wcast-qual -Wundef -Wswitch-default -Wconversion
+    -Wc++-compat -fstack-protector-strong -Wcomma -Wdouble-promotion -Wparentheses
+    -Wunused-macros -Wmissing-variable-declarations -Wused-but-marked-unused
+    -Wswitch-enum
+  )
+
 set(LLVM_MSTL_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/include)
 set(LLVM_MSTL_SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(CTEST_SOURCE_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
@@ -108,8 +111,6 @@ file(GLOB_RECURSE SOURCE ${LLVM_MSTL_SRC_ROOT}/*)
 add_library(mstl SHARED ${SOURCE_INCLUDES} ${SOURCE})
 include_directories(${LLVM_MSTL_INCLUDE_ROOT})
 include_directories(${LLVM_MSTL_SRC_ROOT})
-add_subdirectory(${GTEST_ROOT})
-include_directories(${gtest_SOURCE_DIR}/include)
 
 enable_testing()
 include(CTest)
