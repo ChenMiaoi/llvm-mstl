@@ -74,6 +74,9 @@ struct __has_iterator_category_convertible_to
 template < typename _Tp, typename _Up >
 struct __has_iterator_category_convertible_to< _Tp, _Up, false > : core::false_type {};
 
+template < typename _Tp >
+struct __is_cpp17_forward_iterator : public __has_iterator_category_convertible_to< _Tp, core::forward_iterator_tag > {};
+
 /**
  * @brief Determines if a type is exactly a C++17 input iterator.
  * 

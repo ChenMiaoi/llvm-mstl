@@ -37,7 +37,10 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __swap_allocator( _Alloc& __a1, _Alloc& __a
 template < typename _Alloc >
 LLVM_MSTL_TEMPLATE_INLINE
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
-	__swap_allocator( _Alloc& __a1, _Alloc& __a2, core::false_type ) LLVM_MSTL_NOEXCEPT {}
+	__swap_allocator( _Alloc& __a1, _Alloc& __a2, core::false_type ) LLVM_MSTL_NOEXCEPT {
+	static_cast< void >( __a1 );
+	static_cast< void >( __a2 );
+}
 
 /**
  * @brief Swaps the allocators of two objects conditionally based on propagate_on_container_swap trait.
