@@ -12,7 +12,6 @@
 #include <iterator>
 #include <memory>
 #include <type_traits>
-#include <vcruntime.h>
 
 LLVM_MSTL_CORE_STD
 
