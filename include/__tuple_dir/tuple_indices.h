@@ -4,6 +4,8 @@
 #include "__config.h"
 #include "__utility/integer_sequence.h"
 
+#include <cstddef>
+
 LLVM_MSTL_BEGIN_NAMESPACE_STD
 
 template < size_t... >

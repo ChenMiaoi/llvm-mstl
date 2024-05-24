@@ -10,6 +10,8 @@
 #include "__type_traits/dependent_type.h"
 #include "__utility/integer_sequence.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 

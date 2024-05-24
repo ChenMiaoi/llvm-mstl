@@ -2,6 +2,7 @@
 #define LLVM_MSTL_INTEGER_SEQUENCE_H
 
 #include "__config.h"
+#include <cstddef>
 
 LLVM_MSTL_BEGIN_NAMESPACE_STD
 
