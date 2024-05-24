@@ -44,7 +44,7 @@ struct __compressed_pair_elem {
 	/**
 		* @brief Default constructor with __default_init_tag.
 		*/
-	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __default_init_tag ) = default;
+	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __default_init_tag ){};
 	/**
 		* @brief Value constructor with __value_init_tag.
 		*/
@@ -102,8 +102,8 @@ struct __compressed_pair_elem< _Tp, _Idx, true > : private _Tp {
 	using const_reference = const _Tp&;
 	using __value_type    = _Tp;
 
-	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem()                     = default;
-	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __default_init_tag ) = default;
+	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem() = default;
+	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __default_init_tag ){};
 	LLVM_MSTL_CONSTEXPR explicit __compressed_pair_elem( __value_init_tag )
 			: __value_type() {}
 
