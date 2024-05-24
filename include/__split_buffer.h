@@ -176,11 +176,11 @@ public:
 	/**
 	 * TODO
 	 */
-	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto clear() LLVM_MSTL_NOEXCEPT;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto clear() LLVM_MSTL_NOEXCEPT { __destruct_at_begin( __begin ); };
 	/**
 	 * TODO
 	 */
-	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto capacity() const -> size_type const;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto capacity() const -> size_type const { return static_cast< size_type >( __end_cap() - __first ); };
 	/**
 	 * TODO
 	 */
@@ -501,7 +501,7 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 __split_buffer< _Tp, _Allocator >::__split_buffe
 		__begin = __end = __first;
 		__end_cap()     = __first + __allocation.count;
 		using _Ip       = core::move_iterator< iterator >;
-		__construct_at_end( _Ip( __c.__begin() ), _Ip( __c.end() ) );
+		__construct_at_end( _Ip( __c.begin() ), _Ip( __c.end() ) );
 	}
 }
 
@@ -720,7 +720,7 @@ template < typename _Tp, typename _Allocator >
 template < typename _ForwardIter >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __split_buffer< _Tp, _Allocator >::__construct_at_end( _ForwardIter __fst, _ForwardIter __last )
 	-> core::enable_if_t< __is_cpp17_forward_iterator< _ForwardIter >::value > {
-	_ConstructTransaction __tx( &this->__end, core::distance( __fst, __last ) );
+	_ConstructTransaction __tx( &this->__end, (size_type) core::distance( __fst, __last ) );
 	for ( ; __tx.__pos != __tx.__end; ++__tx.__pos, (void) ++__fst ) {
 		__alloc_traits::construct( this->__alloc(), core::to_address( __tx.__pos ), *__fst );
 	}
