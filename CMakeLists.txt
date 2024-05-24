@@ -97,7 +97,7 @@ list(APPEND LLVM_MSTL_FLAGS -pedantic
     -Wstrict-overflow=2 -Wcast-qual -Wundef -Wswitch-default -Wconversion
     -Wc++-compat -fstack-protector-strong -Wcomma -Wdouble-promotion -Wparentheses
     -Wunused-macros -Wmissing-variable-declarations -Wused-but-marked-unused
-    -Wswitch-enum
+    -Wswitch-enum -g
   )
 
 set(LLVM_MSTL_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/include)
@@ -111,6 +111,10 @@ file(GLOB_RECURSE SOURCE ${LLVM_MSTL_SRC_ROOT}/*)
 add_library(mstl SHARED ${SOURCE_INCLUDES} ${SOURCE})
 include_directories(${LLVM_MSTL_INCLUDE_ROOT})
 include_directories(${LLVM_MSTL_SRC_ROOT})
+
+foreach(header ${SOURCE_INCLUDES})
+    message(${header})
+endforeach()
 
 enable_testing()
 include(CTest)

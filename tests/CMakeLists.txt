@@ -2,6 +2,7 @@ file(GLOB TEST_MODULES "*.cc")
 
 foreach(TEST_MODULE ${TEST_MODULES})
   get_filename_component(TEST_MODULE_NAME ${TEST_MODULE} NAME_WE)
+  add_compile_options(${LLVM_MSTL_FLAGS})
   add_executable(${TEST_MODULE_NAME} ${TEST_MODULE})
   target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main)
   add_test(
