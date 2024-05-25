@@ -29,7 +29,11 @@ function(add_test_module MODULE_NAME)
   file (GLOB TEST_MODULE_SRCS ${MODULE_PATH}/*.cc)
   add_compile_options(${LLVM_MSTL_FLAGS})
   add_executable(${MODULE_NAME} ${TEST_MODULE_SRCS})
-  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main ${ASAN_LIBS})
+  if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main -fsanitize=address)
+  else()
+  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main)
+  endif()
   add_test(
     NAME ${MODULE_NAME}
     COMMAND $<TARGET_FILE:${MODULE_NAME}>
@@ -52,7 +56,11 @@ foreach(TEST_MODULE ${TEST_MODULES})
   get_filename_component(TEST_MODULE_NAME ${TEST_MODULE} NAME_WE)
   add_compile_options(${LLVM_MSTL_FLAGS})
   add_executable(${TEST_MODULE_NAME} ${TEST_MODULE})
-  target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main -fsanitize=address)
+  else()
+  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main)
+  endif()
   add_test(
     NAME ${TEST_MODULE_NAME}
     COMMAND $<TARGET_FILE:${TEST_MODULE_NAME}>

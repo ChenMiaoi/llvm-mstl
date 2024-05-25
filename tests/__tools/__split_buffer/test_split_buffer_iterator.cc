@@ -26,8 +26,6 @@ TEST( SPLIT_BUFFER_ITERATOR, const_iterator_begin ) {
 	EXPECT_TRUE( __buffer.begin() == __buffer.__begin );
 	EXPECT_TRUE( __buffer.begin() == __buffer.__first + start_size );
 	EXPECT_TRUE( __buffer.begin() == __buffer.__end_cap() - buffer_size + start_size );
-
-	ASSERT_TRUE( __buffer.begin()[ buffer_size - 1 ] != 0 );
 }
 
 TEST( SPLIT_BUFFER_ITERATOR, iterator_end ) {

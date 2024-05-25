@@ -100,6 +100,11 @@ list(APPEND LLVM_MSTL_FLAGS -pedantic
     -Wswitch-enum -g
   )
 
+message(STATUS "Current Operator System: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Current Operator System Kernel: ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "Current Operator System Arch: ${CMAKE_SYSTEM_PROCESSOR}")
+
+# TODO: memory check tools or library
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND WIN32)
     # get_filename_component(CLANG_PATH "${CLANG_EXECUTABLE}" DIRECTORY)
     # string(REGEX MATCH ".*LLVM.*" LLVM_CLANG_PATH "${CLANG_PATH}")
@@ -118,7 +123,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND WIN32)
     #     message(FATAL_ERROR "can't find LLVM Path")
     # endif()
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    
+    list(APPEND LLVM_MSTL_FLAGS -fsanitize=address -fsanitize-recover=address -fno-stack-protector 
+    -fno-omit-frame-pointer -static-libsan)
 endif()
 
 set(LLVM_MSTL_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/include)
@@ -144,4 +150,8 @@ add_subdirectory(tests)
 
 add_compile_options(${LLVM_MSTL_FLAGS})
 add_executable(llvm-mstl main.cc)
-target_link_libraries(llvm-mstl mstl)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(llvm-mstl mstl -fsanitize=address)
+else()
+    target_link_libraries(llvm-mstl mstl)
+endif()
