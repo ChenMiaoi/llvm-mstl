@@ -170,7 +170,12 @@ public:
 
 	/************************************		Functions		**************************************/
 	/**
-	* TODO
+	* @brief Returns the size of the buffer.
+	*
+	* This function calculates and returns the number of elements in the buffer.
+	* The buffer's range: [_begen, _end)
+	*
+	* @return The number of elements in the buffer.
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto size() const -> size_type { return static_cast< size_type >( __end - __begin ); }
 	/**
@@ -343,18 +348,45 @@ public:
 		-> core::enable_if_t< __is_cpp17_forward_iterator< _ForwardIter >::value >;
 
 	/**
-	 * TODO
-	 */
+	* @brief Destructs elements from the beginning of the split buffer up to a specified new begin pointer.
+	*
+	* This function destructs elements from the beginning of the split buffer up to the specified new begin pointer.
+	* It determines whether the elements are trivially destructible using the `core::is_trivially_destructible` type trait,
+	* and calls the appropriate implementation based on the result.
+	*
+	* @tparam _Tp The type of elements in the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_begin Pointer to the new beginning of the split buffer.
+	* @return None.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_begin( pointer __new_begin ) {
 		__destruct_at_begin( __new_begin, core::is_trivially_destructible< value_type >() );
 	};
 	/**
-	 * TODO
-	 */
+	* @brief Destructs elements from the beginning of the split buffer up to a specified new begin pointer.
+	*
+	* This function destructs elements from the beginning of the split buffer up to the specified new begin pointer.
+	* It uses different implementations based on the type trait of `core::false_type` or `core::true_type`.
+	*
+	* @tparam _Tp The type of elements in the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_begin Pointer to the new beginning of the split buffer.
+	* @param core::false_type The type trait indicating the destruction of elements is required.
+	* @return None.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_begin( pointer __new_begin, core::false_type );
 	/**
-	 * TODO
-	 */
+	* @brief Adjusts the beginning of the split buffer to a specified new begin pointer.
+	*
+	* This function adjusts the beginning of the split buffer to the specified new begin pointer.
+	* It uses the implementation based on the type trait of `core::true_type`.
+	*
+	* @tparam _Tp The type of elements in the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_begin Pointer to the new beginning of the split buffer.
+	* @param core::true_type The type trait indicating only adjusting the new beginning is required.
+	* @return None.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_begin( pointer __new_begin, core::true_type );
 	/**
 	 * TODO 

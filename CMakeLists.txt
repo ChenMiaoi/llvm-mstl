@@ -100,6 +100,27 @@ list(APPEND LLVM_MSTL_FLAGS -pedantic
     -Wswitch-enum -g
   )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND WIN32)
+    # get_filename_component(CLANG_PATH "${CLANG_EXECUTABLE}" DIRECTORY)
+    # string(REGEX MATCH ".*LLVM.*" LLVM_CLANG_PATH "${CLANG_PATH}")
+    # if (LLVM_CLANG_PATH)
+    #     string(REGEX REPLACE "/bin$" "" LLVM_PATH "${LLVM_CLANG_PATH}")
+    #     message(STATUS "Found LLVM PATH: ${LLVM_PATH}")
+    #     file(GLOB_RECURSE ASAN_LIBS "${LLVM_PATH}/*/clang_rt.asan_dynamic*.lib")
+    #     if (ASAN_LIBS)
+    #         message(STATUS "${ASAN_LIBS}")
+    #         message(STATUS "Found libasan")
+    #         list(APPEND LLVM_MSTL_FLAGS -fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address)
+    #     else ()
+    #         message(STATUS "NOT Found libasan")
+    #     endif ()
+    # else()
+    #     message(FATAL_ERROR "can't find LLVM Path")
+    # endif()
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    
+endif()
+
 set(LLVM_MSTL_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/include)
 set(LLVM_MSTL_SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(CTEST_SOURCE_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
@@ -113,7 +134,7 @@ include_directories(${LLVM_MSTL_INCLUDE_ROOT})
 include_directories(${LLVM_MSTL_SRC_ROOT})
 
 foreach(header ${SOURCE_INCLUDES})
-    message(${header})
+#    message(${header})
 endforeach()
 
 enable_testing()
