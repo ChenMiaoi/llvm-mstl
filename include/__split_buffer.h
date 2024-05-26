@@ -155,8 +155,20 @@ public:
 	/************************************		Operators		**************************************/
 
 	/**
-	 * TODO
-	 */
+	* @brief Move assignment operator for the split buffer.
+	*
+	* This move assignment operator assigns the contents of the given split buffer `__c` to the current split buffer. 
+	* First, it clears the current buffer using the `clear` member function to remove all elements. 
+	* Then, it calls the `shrink_to_fit` member function to reduce the capacity of the buffer to fit the size of the new buffer. 
+	* Next, it assigns the pointers and capacity from `__c` to the current buffer. 
+	* After that, it performs move assignment on the allocator if the `propagate_on_container_move_assignment` trait is `true` 
+	* and the allocator type is nothrow move assignable. 
+	* Finally, it sets the pointers of `__c` to null to indicate that it is in a valid but unspecified state. 
+	* The function returns a reference to the current split buffer.
+	*
+	* @param __c The split buffer to be moved from.
+	* @return A reference to the current split buffer after move assignment.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 __split_buffer& operator=( __split_buffer&& __c )
 		LLVM_MSTL_NOEXCEPT_V( (__alloc_traits::propagate_on_container_move_assignment::value &&
 													 core::is_nothrow_move_assignable_v< allocator_type >) ||
@@ -333,17 +345,35 @@ public:
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto push_back( value_type&& __x );
 	/**
-	 * TODO
-	 */
+	* @brief Constructs an element at the end of the split buffer.
+	*
+	* This function constructs an element at the end of the split buffer by forwarding the given arguments `__args`. 
+	* If there is enough space after the end pointer `__end`, the element is constructed directly at `__end`. 
+	* If there is not enough space, a new split buffer `__t` is created with increased capacity. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to update the buffer. 
+	* Finally, the element is constructed at the new end position by forwarding the arguments `__args`.
+	*
+	* @tparam _Args The types of the arguments used to construct the element.
+	* @param __args The arguments used to construct the element at the end of the split buffer.
+	*/
 	template < typename... _Args >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto emplace_back( _Args&&... _args );
 	/**
-	 * TODO 
-	 */
+	* @brief Removes the first element from the split buffer.
+	*
+	* This function removes the first element from the split buffer by destructing it. 
+	* The `__destruct_at_begin` member function is called to destruct the element at the position `__begin + 1`, 
+	* effectively removing it from the buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto pop_front() { __destruct_at_begin( __begin + 1 ); }
 	/**
-	 * TODO 
-	 */
+	* @brief Removes the last element from the split buffer.
+	*
+	* This function removes the last element from the split buffer by destructing it. 
+	* The `__destruct_at_end` member function is called to destruct the element at the position `__end - 1`, 
+	* effectively removing it from the buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto pop_back() { __destruct_at_end( __end - 1 ); }
 	/**
 	* @brief Swaps the contents and allocators of two split buffer objects.
@@ -485,36 +515,86 @@ public:
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_begin( pointer __new_begin, core::true_type );
 	/**
-	 * TODO 
-	 */
+	* @brief Destructs elements at the end of the split buffer.
+	*
+	* This function destructs elements at the end of the split buffer until the `__new_last` position. 
+	* It calls the `__destruct_at_end` member function with the `core::false_type` type trait to perform the destruction of elements.
+	*
+	* @tparam _Tp The value type of the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_last The new end position of the split buffer.
+	* @return void
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_end( pointer __new_last ) LLVM_MSTL_NOEXCEPT {
 		__destruct_at_end( __new_last, core::false_type() );
 	};
 	/**
-	 * TODO
-	 */
+	* @brief Destructs elements at the end of the split buffer.
+	*
+	* This function destructs elements at the end of the split buffer until the `__new_last` position. 
+	* If the `core::false_type` type trait is used, it iterates over the elements from `__end` to `__new_last` (excluding `__new_last`) 
+	* and calls the `__alloc_traits::destroy` function to destruct each element. 
+	* If the `core::true_type` type trait is used, it simply assigns `__new_last` to `__end` to update the end position of the buffer.
+	*
+	* @tparam _Tp The value type of the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_last The new end position of the split buffer.
+	* @param core::false_type The type trait indicating destruction of elements.
+	* @return void
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_end( pointer __new_last, core::false_type ) LLVM_MSTL_NOEXCEPT;
 	/**
-	 * TODO 
-	 */
+	* @brief Destructs elements at the end of the split buffer.
+	*
+	* This function updates the end position of the split buffer by assigning `__new_last` to `__end`. 
+	* If the `core::true_type` type trait is used, it directly assigns the new end position without looping over the elements.
+	*
+	* @tparam _Tp The value type of the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __new_last The new end position of the split buffer.
+	* @param core::true_type The type trait indicating no destruction required.
+	* @return void
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __destruct_at_end( pointer __new_last, core::true_type ) LLVM_MSTL_NOEXCEPT;
 	/**
-	 * TODO 
-	 */
+	* @brief Checks the invariants of the split buffer.
+	*
+	* This function checks the invariants of the split buffer and returns a boolean value indicating whether the invariants hold. 
+	* If the `__first` pointer is `nullptr`, it checks that `__begin`, `__end`, and `__end_cap()` are also `nullptr`. 
+	* Otherwise, it checks the relative positions of `__begin`, `__end`, and `__end_cap()` to ensure they are within valid ranges.
+	*
+	* @tparam _Tp The value type of the split buffer.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @return A boolean value indicating whether the invariants hold.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __invariants() const -> bool;
 
 private:
 	/**
-	 * TODO
-	 */
+	* @brief Moves the allocator from another split buffer.
+	*
+	* This function moves the allocator from another split buffer `__c` to the current split buffer. 
+	* If the `core::true_type` type trait is used, it performs move assignment on the allocator by 
+	* assigning `__c.__alloc()` to `__alloc()`. If the `core::false_type` type trait is used, the function does nothing.
+	*
+	* @param __c The split buffer from which to move the allocator.
+	* @param core::true_type The type trait indicating move assignment is supported.
+	* @return void
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign_alloc( __split_buffer& __c, core::true_type )
 		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > ) {
 		__alloc() = core::move( __c.__alloc() );
 	}
 
 	/**
-	 * TODO 
-	 */
+	* @brief Placeholder function for non-move-assignable allocator.
+	*
+	* This function is a placeholder and does nothing when the `core::false_type` type trait is used.
+	*
+	* @param __c The split buffer (unused).
+	* @param core::false_type The type trait indicating move assignment is not supported.
+	* @return void
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign_alloc( __split_buffer&, core::false_type )
 		LLVM_MSTL_NOEXCEPT {}
 
@@ -792,6 +872,32 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 		}
 	}
 	__alloc_traits::construct( __alloc(), core::to_address( __end ), core::move( __x ) );
+	++__end;
+}
+
+template < typename _Tp, typename _Allocator >
+template < typename... _Args >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __split_buffer< _Tp, _Allocator >::emplace_back( _Args&&... __args ) {
+	if ( __end == __end_cap() ) {
+		if ( __begin > __first ) {
+			difference_type __d = __begin - __first;
+			__d                 = ( __d + 1 ) / 2;
+			__end               = core::move( __begin, __end, __begin - __d );
+			__begin             = __begin - __d;
+		} else {
+			size_type __c =
+				core::max< size_type >( 2 * static_cast< size_t >( __end_cap() - __first ), 1 );
+			__split_buffer< value_type, __alloc_rr& > __t( __c, __c / 4, __alloc() );
+			__t.__construct_at_end(
+				core::move_iterator< pointer >( __begin ),
+				core::move_iterator< pointer >( __end ) );
+			core::swap( __first, __t.__first );
+			core::swap( __begin, __t.__begin );
+			core::swap( __end, __t.__end );
+			core::swap( __end_cap(), __t.__end_cap() );
+		}
+	}
+	__alloc_traits::construct( __alloc(), core::to_address( __end ), core::forward< _Args >( __args )... );
 	++__end;
 }
 
