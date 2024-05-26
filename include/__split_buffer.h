@@ -179,62 +179,158 @@ public:
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto size() const -> size_type { return static_cast< size_type >( __end - __begin ); }
 	/**
-	 * TODO
-	 */
+	* @brief Clears all elements from the container.
+	*
+	* This function removes all elements from the container, leaving it empty. It calls the destructor of each element and releases the memory occupied by the elements.
+	*
+	* @note This function is available since C++20.
+	* @note This function does not throw any exceptions.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto clear() LLVM_MSTL_NOEXCEPT { __destruct_at_begin( __begin ); };
 	/**
-	 * TODO
-	 */
+	* @brief Returns the capacity of the container.
+	*
+	* This function returns the capacity of the container, which represents the maximum number of elements 
+	* that the container can hold without reallocation. The capacity is calculated as the difference 
+	* between the address of the last valid element in the memory allocated by the allocator (`__end_cap()`) 
+	* and the address of the first element (`__first`).
+	*
+	* @return The capacity of the container, expressed as a value of type size_type.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto capacity() const -> size_type const { return static_cast< size_type >( __end_cap() - __first ); };
 	/**
-	 * TODO
-	 */
+	* @brief Returns the number of unused elements at the front of the container.
+	*
+	* This function calculates and returns the number of unused elements at the front of the container. The range of the container is defined as [__first, __begin], where __first points to the address of the initially allocated memory block and __begin represents the beginning address of the elements used by the container.
+	*
+	* @return The number of unused elements at the front of the container, expressed as a value of type size_type.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __front_spare() const -> size_type { return static_cast< size_type >( __begin - __first ); }
 	/**
-	 * TODO
-	 */
+	* @brief Returns the number of unused elements at the back of the container.
+	*
+	* This function calculates and returns the number of unused elements at the back of the container. 
+	* The range of the container is defined as [__first, __begin, __end, __end_cap()], 
+	* where `__end` represents the pointer to the current last element stored in the container, 
+	* and `__end_cap()` returns the pointer to the last valid element in the memory block allocated for the container. 
+	* By subtracting `__end` from `__end_cap()`, the remaining unused space can be determined.
+	*
+	* @return The number of unused elements at the back of the container, expressed as a value of type size_type.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __back_spare() const -> size_type { return static_cast< size_type >( __end_cap() - __end ); }
 
 	/**
-	 * TODO
-	 */
+	* @brief Returns a reference to the first element in the container.
+	*
+	* This function returns a reference to the first element in the container.
+	*
+	* @return A reference to the first element in the container.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto front() -> reference { return *__begin; }
 	/**
-	 * TODO
-	 */
+	* @brief Returns a constant reference to the first element in the container.
+	*
+	* This function returns a constant reference to the first element in the container. The function is marked as `const`, indicating that it does not modify the container.
+	*
+	* @return A constant reference to the first element in the container.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto front() const -> const_reference { return *__begin; }
 	/**
-	 * TODO
-	 */
+ * @brief Returns a reference to the last element in the container.
+ *
+ * This function returns a reference to the last element in the container.
+ *
+ * @return A reference to the last element in the container.
+ */
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto back() -> reference { return *( __end - 1 ); }
 	/**
-	 * TODO
-	 */
+ * @brief Returns a constant reference to the last element in the container.
+ *
+ * This function returns a constant reference to the last element in the container. 
+ * The function is marked as `const`, indicating that it does not modify the container.
+ *
+ * @return A constant reference to the last element in the container.
+ */
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto back() const -> const_reference { return *( __end - 1 ); }
 
 	/**
-	 * TODO
-	 */
+	* @brief Reserves space in the split buffer.
+	*
+	* This function reserves space in the split buffer to accommodate at least `__n` elements. 
+	* If the requested capacity `__n` is less than the current capacity, no action is taken. 
+	* If the requested capacity is greater than or equal to the current capacity, a temporary split buffer `__t` is created 
+	* with the new capacity `__n`. The elements from the current buffer are moved to `__t` using move iterators 
+	* and the `__construct_at_end` member function. Then, the pointers and capacity of the current buffer are swapped 
+	* with the corresponding values of `__t` to update the buffer's capacity.
+	*
+	* @note This function is available since C++20.
+	*
+	* @param __n The minimum capacity to reserve.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto reserve( size_type __n );
 	/**
-	 * TODO
-	 */
+	* @brief Shrinks the split buffer's capacity to fit its size.
+	*
+	* This function shrinks the split buffer's capacity to match its size. 
+	* If the capacity is greater than the size, a temporary split buffer `__t` is created with a capacity equal to the current size. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to 
+	* update the buffer's capacity.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto shrink_to_fit() LLVM_MSTL_NOEXCEPT;
 	/**
-	 * TODO
-	 */
+	* @brief Inserts an element at the beginning of the split buffer.
+	*
+	* This function inserts the element `__x` at the beginning of the split buffer. 
+	* If there is enough space before the beginning pointer `__begin`, the element is inserted directly by moving the existing elements 
+	* to make room. 
+	* If there is not enough space, a new split buffer `__t` is created with increased capacity. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to update the buffer. 
+	* Finally, the element `__x` is constructed at the new beginning position.
+	*
+	* @param __x The element to be inserted at the beginning of the split buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto push_front( const_reference __x );
 	/**
-	 * TODO
-	 */
+	* @brief Inserts an `rvalue element` at the beginning of the split buffer.
+	*
+	* This function inserts the rvalue element `__x` at the beginning of the split buffer. 
+	* If there is enough space before the beginning pointer `__begin`, the element is inserted directly by moving the existing elements 
+	* to make room. 
+	* If there is not enough space, a new split buffer `__t` is created with increased capacity. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to update the buffer. 
+	* Finally, the rvalue element `__x` is constructed at the new beginning position.
+	*
+	* @param __x The rvalue element to be inserted at the beginning of the split buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto push_front( value_type&& __x );
 	/**
-	 * TODO
-	 */
+	* @brief Inserts an element at the end of the split buffer.
+	*
+	* This function inserts the element `__x` at the end of the split buffer. 
+	* If there is enough space after the end pointer `__end`, the element is inserted directly by constructing it at `__end`. 
+	* If there is not enough space, a new split buffer `__t` is created with increased capacity. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to update the buffer. 
+	* Finally, the element `__x` is constructed at the new end position.
+	*
+	* @param __x The element to be inserted at the end of the split buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto push_back( const_reference __x );
 	/**
-	 * TODO
-	 */
+	* @brief Inserts an `rvalue element` at the end of the split buffer.
+	*
+	* This function inserts the rvalue element `__x` at the end of the split buffer. 
+	* If there is enough space after the end pointer `__end`, the element is inserted directly by constructing it at `__end`. 
+	* If there is not enough space, a new split buffer `__t` is created with increased capacity. 
+	* The elements from the current buffer are moved to `__t` using move iterators and the `__construct_at_end` member function. 
+	* Then, the pointers and capacity of the current buffer are swapped with the corresponding values of `__t` to update the buffer. 
+	* Finally, the rvalue element `__x` is constructed at the new end position.
+	*
+	* @param __x The rvalue element to be inserted at the end of the split buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto push_back( value_type&& __x );
 	/**
 	 * TODO
@@ -351,7 +447,7 @@ public:
 	* @brief Destructs elements from the beginning of the split buffer up to a specified new begin pointer.
 	*
 	* This function destructs elements from the beginning of the split buffer up to the specified new begin pointer.
-	* It determines whether the elements are trivially destructible using the `core::is_trivially_destructible` type trait,
+	* It determines whether the elements are `trivially or default destructible` using the `core::is_trivially_destructible` type trait,
 	* and calls the appropriate implementation based on the result.
 	*
 	* @tparam _Tp The type of elements in the split buffer.
@@ -587,7 +683,7 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __split_buffer< _Tp, _Allocator >::shrink_t
 		__t.__construct_at_end(
 			core::move_iterator< pointer >( __begin ),
 			core::move_iterator< pointer >( __end ) );
-		__t.__end = __t.__begin + ( __t.__end - __begin );
+		__t.__end = __t.__begin + ( __end - __begin );
 		core::swap( __first, __t.__first );
 		core::swap( __begin, __t.__begin );
 		core::swap( __end, __t.__end );
