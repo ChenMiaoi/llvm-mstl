@@ -2,9 +2,14 @@
 #include "gtest/gtest.h"
 
 #include <memory>
+#include <random>
+
+static core::random_device                       rd;
+static core::mt19937                             generator( rd() );
+static core::uniform_int_distribution< int64_t > distribution( 0 );
 
 TEST( SPLIT_BUFFER_ITERATOR, iterator_begin ) {
-	size_t                                                     buffer_size = 100000;
+	size_t                                                     buffer_size = 1000000;
 	size_t                                                     start_size  = 0;
 	core::allocator< int64_t >                                 __a;
 	nya::__split_buffer< int64_t, core::allocator< int64_t > > __buffer{
@@ -16,7 +21,7 @@ TEST( SPLIT_BUFFER_ITERATOR, iterator_begin ) {
 }
 
 TEST( SPLIT_BUFFER_ITERATOR, const_iterator_begin ) {
-	size_t                                                           buffer_size = 100000;
+	size_t                                                           buffer_size = 1000000;
 	size_t                                                           start_size  = 0;
 	core::allocator< int64_t >                                       __a;
 	const nya::__split_buffer< int64_t, core::allocator< int64_t > > __buffer{
@@ -29,7 +34,7 @@ TEST( SPLIT_BUFFER_ITERATOR, const_iterator_begin ) {
 }
 
 TEST( SPLIT_BUFFER_ITERATOR, iterator_end ) {
-	size_t                                                     buffer_size = 100000;
+	size_t                                                     buffer_size = 1000000;
 	size_t                                                     start_size  = 0;
 	core::allocator< int64_t >                                 __a;
 	nya::__split_buffer< int64_t, core::allocator< int64_t > > __buffer{
@@ -41,7 +46,7 @@ TEST( SPLIT_BUFFER_ITERATOR, iterator_end ) {
 }
 
 TEST( SPLIT_BUFFER_ITERATOR, const_iterator_end ) {
-	size_t                                                           buffer_size = 100000;
+	size_t                                                           buffer_size = 1000000;
 	size_t                                                           start_size  = 0;
 	core::allocator< int64_t >                                       __a;
 	const nya::__split_buffer< int64_t, core::allocator< int64_t > > __buffer{
