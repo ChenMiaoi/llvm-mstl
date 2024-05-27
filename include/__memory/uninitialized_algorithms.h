@@ -9,7 +9,6 @@
 #include <iterator>
 #include <memory>
 #include <type_traits>
-#include <xutility>
 
 LLVM_MSTL_BEGIN_NAMESPACE_STD
 LLVM_MSTL_CORE_STD

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.8)
 project(llvm-mstl VERSION 0.1.0 LANGUAGES C CXX)
 
 # Find Clang
@@ -83,9 +83,6 @@ endif()
 
 option(gtest_force_shared_crt "Use shared (DLL) run-time lib even when Google Test is built as static lib." ON)
 
-add_subdirectory(${GTEST_ROOT})
-include_directories(${gtest_SOURCE_DIR}/include)
-
 set(CMAKE_C_COMPILER ${CLANG_EXECUTABLE})
 set(CMAKE_CXX_COMPILER ${CLANGXX_EXECUTABLE})
 set(CMAKE_CXX_STANDARD 20)
@@ -138,6 +135,9 @@ file(GLOB_RECURSE SOURCE ${LLVM_MSTL_SRC_ROOT}/*)
 add_library(mstl SHARED ${SOURCE_INCLUDES} ${SOURCE})
 include_directories(${LLVM_MSTL_INCLUDE_ROOT})
 include_directories(${LLVM_MSTL_SRC_ROOT})
+
+add_subdirectory(${GTEST_ROOT})
+include_directories(${gtest_SOURCE_DIR}/include)
 
 foreach(header ${SOURCE_INCLUDES})
 #    message(${header})
