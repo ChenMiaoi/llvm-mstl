@@ -17,12 +17,15 @@
 #include "__iterator/wrap_iter.h"
 #include "__memory/allocate_at_least.h"
 #include "__memory/compress_pair.h"
+#include "__memory/uninitialized_algorithms.h"
 #include "__split_buffer.h"
 #include "__type_traits/is_allocator.h"
 #include "__utility/exception_guard.h"
 #include "stdexcept.h"
 
 
+#include <algorithm>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <type_traits>
@@ -177,6 +180,12 @@ public:
 		"[allocator.requirements] states that rebinding an allocator to the same type should result in the "
 		"original allocator" );
 
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *															CONSTRUCTOR BEGIN		                                 *
+	 *                                                                                   *
+	 *************************************************************************************/
+
 	/**
 		* @brief Default constructor for creating an empty vector.
 		*
@@ -302,6 +311,120 @@ public:
 			int > = 0 >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _InputIterator __first, _InputIterator __last );
 
+	/**
+	 * @brief TODO
+	 * 
+	 * @tparam _InputIterator 
+	 */
+	template <
+		typename _InputIterator,
+		core::enable_if_t<
+			__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _InputIterator >::reference >,
+			int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _InputIterator __first, _InputIterator __last, const allocator_type& __a );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @tparam _ForwardIterator 
+	 * @param __first 
+	 * @param __last 
+	 */
+	template <
+		typename _ForwardIterator,
+		core::enable_if_t<
+			__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _ForwardIterator >::reference >,
+			int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _ForwardIterator __first, _ForwardIterator __last );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @tparam _ForwardIterator 
+	 * @param __first 
+	 * @param __last 
+	 * @param __a 
+	 */
+	template <
+		typename _ForwardIterator,
+		core::enable_if_t<
+			__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _ForwardIterator >::reference >,
+			int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( _ForwardIterator __first, _ForwardIterator __last, const allocator_type& __a );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __x 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( const vector& __x );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __x 
+	 * @param __a 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( const vector& __x, const core::type_identity_t< allocator_type >& __a );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __il 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( core::initializer_list< value_type > __il );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __il 
+	 * @param __a 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( core::initializer_list< value_type > __il, const allocator_type& __a );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __x 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( vector&& __x ) LLVM_MSTL_NOEXCEPT;
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __x 
+	 * @param __a 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector( vector&& __x, const core::type_identity_t< allocator_type >& __a );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 ~vector() { __destroy_vector ( *this )(); }
+
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																CONSTRUCTOR END			                               *
+	 *                                                                                   *
+	 *************************************************************************************/
+
 private:
 	/**
 	* @brief Functor to destroy a vector and deallocate its memory.
@@ -344,6 +467,12 @@ private:
 	};
 
 public:
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *															FUNCTIONS BEGIN		               	                   *
+	 *                                                                                   *
+	 *************************************************************************************/
+
 	/**
 	* @brief Returns the size of the vector.
 	*
@@ -383,7 +512,19 @@ public:
 	template < typename... _Args >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto emplace_back( _Args&&... __args ) -> reference;
 
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																FUNCTIONS END		               	                   *
+	 *                                                                                   *
+	 *************************************************************************************/
+
 private:
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																HELPER BEGIN		               	                   *
+	 *                                                                                   *
+	 *************************************************************************************/
+
 	/**
 	* @brief Allocates memory for at least `__n` elements.
 	*
@@ -419,6 +560,20 @@ private:
 		//! here `__annotate_new` doing nothing
 		__annotate_new( 0 );
 	}
+
+	/**
+	 * TODO
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __recommend( size_type __new_size ) const -> size_type;
+
+	/**
+	 * TODO 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __swap_out_circular_buffer( __split_buffer< value_type, allocator_type& >& __v );
+	/**
+	 * TODO 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __swap_out_circular_buffer( __split_buffer< value_type, allocator_type& >& __v, pointer __p ) -> pointer;
 
 	/**
 	* @brief Constructs a specified number of elements at the end of the vector.
@@ -564,6 +719,11 @@ private:
 		nya::__throw_length_error( "vector" );
 	}
 
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																	HELPER END		               	                   *
+	 *                                                                                   *
+	 *************************************************************************************/
 public:
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto max_size() const LLVM_MSTL_NOEXCEPT->size_type;
 
@@ -576,6 +736,12 @@ private:
 		__compressed_pair< pointer, allocator_type >( nullptr, __default_init_tag() );
 };
 
+
+/*************************************************************************************		
+ *                                                                                   *
+ *															CONSTRUCTOR BEGIN		                                 *
+ *                                                                                   *
+ *************************************************************************************/
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( size_type __n ) {
 	// create a RAII exception guard, if task done, automatic drop by calling `__destroy_vector`
@@ -625,6 +791,187 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( _InputIterato
 		emplace_back( *__first );
 	__guard.__complete();
 }
+
+template < typename _Tp, typename _Allocator >
+template <
+	typename _InputIterator,
+	core::enable_if_t<
+		__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _InputIterator >::reference >,
+		int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector(
+	_InputIterator __first, _InputIterator __last, const allocator_type& __a )
+		: __end_capm( nullptr, __a ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	for ( ; __first != __last; ++__first )
+		emplace_back( *__first );
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+template <
+	typename _ForwardIterator,
+	core::enable_if_t<
+		__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _ForwardIterator >::reference >,
+		int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( _ForwardIterator __first, _ForwardIterator __last ) {
+	auto      __guard = __make_exception_guard( __destroy_vector( *this ) );
+	size_type __n     = static_cast< size_type >( core::distance( __first, __last ) );
+	if ( __n > 0 ) {
+		__vallocate( __n );
+		__construct_at_end( __first, __last, __n );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+template <
+	typename _ForwardIterator,
+	core::enable_if_t<
+		__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _ForwardIterator >::reference >,
+		int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector(
+	_ForwardIterator __first, _ForwardIterator __last, const allocator_type& __a )
+		: __end_capm( nullptr, __a ) {
+	auto      __guard = __make_exception_guard( __destroy_vector( *this ) );
+	size_type __n     = static_cast< size_type >( core::distance( __first, __last ) );
+	if ( __n > 0 ) {
+		__vallocate( __n );
+		__construct_at_end( __first, __last, __n );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( const vector& __x )
+		: __end_capm( nullptr, __alloc_traits::select_on_container_copy_construction( __x.__alloc() ) ) {
+	auto      __guard = __make_exception_guard( __destroy_vector( *this ) );
+	size_type __n     = __x.size();
+	if ( __n > 0 ) {
+		__vallocate( __n );
+		__construct_at_end( __x.__begin, __x.__end, __n );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector(
+	const vector& __x, const core::type_identity_t< allocator_type >& __a )
+		: __end_capm( nullptr, __a ) {
+	auto      __guard = __make_exception_guard( __destroy_vector( *this ) );
+	size_type __n     = __x.size();
+	if ( __n > 0 ) {
+		__vallocate( __n );
+		__construct_at_end( __x.__begin, __x.__end, __n );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector( core::initializer_list< value_type > __il ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	if ( __il.size() > 0 ) {
+		__vallocate( __il.size() );
+		__construct_at_end( __il.begin(), __il.end(), __il.size() );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector< _Tp, _Allocator >::vector(
+	core::initializer_list< value_type > __il, const allocator_type& __a )
+		: __end_capm( nullptr, __a ) {
+	auto __guard = __make_exception_guard( __destroy_vector( *this ) );
+	if ( __il.size() > 0 ) {
+		__vallocate( __il.size() );
+		__construct_at_end( __il.begin(), __il.end(), __il.size() );
+	}
+	__guard.__complete();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
+vector< _Tp, _Allocator >::vector( vector&& __x ) LLVM_MSTL_NOEXCEPT
+		: __end_capm( nullptr, core::move( __x.__alloc() ) ) {
+	this->__begin     = __x.__begin;
+	this->__end       = __x.__end;
+	this->__end_cap() = __x.__end_cap();
+	__x.__begin = __x.__end = __x.__end_cap() = nullptr;
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
+vector< _Tp, _Allocator >::vector( vector&& __x, const core::type_identity_t< allocator_type >& __a )
+		: __end_capm( nullptr, __a ) {
+	this->__begin     = __x.__begin;
+	this->__end       = __x.__end;
+	this->__end_cap() = __x.__end_cap();
+	__x.__begin = __x.__end = __x.__end_cap() = nullptr;
+}
+
+/*************************************************************************************		
+ *                                                                                   *
+ *																CONSTRUCTOR END		                                 *
+ *                                                                                   *
+ *************************************************************************************/
+
+/********************************		HELPER FUNCTIONS		**************************************/
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE auto vector< _Tp, _Allocator >::__recommend( size_type __new_size ) const
+	-> typename vector< _Tp, _Allocator >::size_type {
+	const size_type __ms = max_size();
+	if ( __new_size > __ms ) this->__throw_length_error();
+	const size_type __cap = capacity();
+	if ( __cap >= __ms / 2 ) return __ms;
+	return core::max< size_type >( 2 * __cap, __new_size );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__swap_out_circular_buffer( __split_buffer< value_type, allocator_type& >& __v ) {
+	__annotate_delete();//!<--- no work
+	using _RevIter = core::reverse_iterator< pointer >;
+	__v.__begin    = __uninitialized_allocator_move_if_noexcept(
+                  __alloc(),
+                  _RevIter( __end ),
+                  _RevIter( __begin ),
+                  _RevIter( __v.__begin ) )
+									.base();
+	core::swap( this->__begin, __v.__begin );
+	core::swap( this->__end, __v.__end );
+	core::swap( this->__end_cap(), __v.__end_cap() );
+	__v.__first = __v.__begin;
+	__annotate_new( size() );//!<--- no work
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__swap_out_circular_buffer(
+	__split_buffer< value_type, allocator_type& >& __v, pointer __p ) -> typename vector< _Tp, _Allocator >::pointer {
+	__annotate_delete();
+	pointer __r    = __v.__begin;
+	using _RevIter = core::reverse_iterator< pointer >;
+	__v.__begin    = __uninitialized_allocator_move_if_noexcept(
+                  __alloc(),
+                  _RevIter( __p ),
+                  _RevIter( __begin ),
+                  _RevIter( __v.__begin ) )
+									.base();
+	__v.__end = __uninitialized_allocator_move_if_noexcept( __alloc(), __p, __end, __v.__end );
+	core::swap( this->__begin, __v.__begin );
+	core::swap( this->__end, __v.__end );
+	core::swap( this->__end_cap(), __v.__end_cap() );
+	__v.__first = __v.__begin;
+	__annotate_new( size() );
+	return __r;
+}
+
 
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__construct_at_end( size_type __n ) {
