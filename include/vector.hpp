@@ -20,6 +20,7 @@
 #include "__memory/uninitialized_algorithms.h"
 #include "__split_buffer.h"
 #include "__type_traits/is_allocator.h"
+#include "__type_traits/noexcept_move_assign_container.h"
 #include "__utility/exception_guard.h"
 #include "stdexcept.h"
 
@@ -424,6 +425,57 @@ public:
 	 *																CONSTRUCTOR END			                               *
 	 *                                                                                   *
 	 *************************************************************************************/
+public:
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																OPERATOR BEGIN			                               *
+	 *                                                                                   *
+	 *************************************************************************************/
+
+	// TODO
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector& operator=( const vector& __x );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector& operator=( core::initializer_list< value_type > __il );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 vector& operator=( vector&& __x )
+		LLVM_MSTL_NOEXCEPT_V( ( __noexcept_move_assign_container< _Allocator, __alloc_traits >::value ) );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 reference       operator[]( size_type __n ) LLVM_MSTL_NOEXCEPT;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 const_reference operator[]( size_type __n ) const LLVM_MSTL_NOEXCEPT;
+
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																	OPERATOR END			                               *
+	 *                                                                                   *
+	 *************************************************************************************/
+
+public:
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																ITERATOR BEGIN			                               *
+	 *                                                                                   *
+	 *************************************************************************************/
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @return iterator 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto begin() LLVM_MSTL_NOEXCEPT->iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto begin() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto end() LLVM_MSTL_NOEXCEPT->iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto end() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto rbegin() LLVM_MSTL_NOEXCEPT->iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto rbegin() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto rend() LLVM_MSTL_NOEXCEPT->iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto rend() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto cbegin() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto cend() const LLVM_MSTL_NOEXCEPT->const_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto crbegin() const LLVM_MSTL_NOEXCEPT->const_reverse_iterator;
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto crend() const LLVM_MSTL_NOEXCEPT->const_reverse_iterator;
+
+	/*************************************************************************************		
+	 *                                                                                   *
+	 *																	ITERATOR END			                               *
+	 *                                                                                   *
+	 *************************************************************************************/
 
 private:
 	/**
@@ -509,8 +561,37 @@ public:
 		return core::to_address( this->__begin );
 	}
 
+	/**
+	 * @brief TODO
+	 * 
+	 * @tparam _Args 
+	 * @param __args 
+	 * @return reference 
+	 */
 	template < typename... _Args >
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto emplace_back( _Args&&... __args ) -> reference;
+
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto assign( size_type __n, const_reference __u );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto assign( core::initializer_list< value_type > __il );
+	template <
+		typename _InputIterator,
+		core::enable_if_t<
+			__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _InputIterator >::reference >,
+			int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto assign( _InputIterator __first, _InputIterator __last );
+
+	template <
+		typename _ForwardIterator,
+		core::enable_if_t<
+			__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+				core::is_constructible_v<
+					value_type,
+					typename core::iterator_traits< _ForwardIterator >::reference >,
+			int > = 0 >
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto assign( _ForwardIterator __first, _ForwardIterator __last );
 
 	/*************************************************************************************		
 	 *                                                                                   *
@@ -692,6 +773,15 @@ private:
 	}
 
 	/**
+	 * @brief TODO
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __make_iter( pointer __p )
+		LLVM_MSTL_NOEXCEPT->iterator { return iterator( this, __p ); }
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __make_iter( pointer __p ) const
+		LLVM_MSTL_NOEXCEPT->const_iterator { return const_iterator( this, __p ); }
+
+
+	/**
 	* @brief Clears the vector by destructing elements from `__end` to the `__begin`.
 	*
 	* This member function clears the vector by destructing elements from `__end` to the `__begin`. It calls
@@ -713,6 +803,28 @@ private:
 		while ( __new_last != __soon_to_be_end )
 			__alloc_traits::destroy( __alloc(), core::to_address( --__soon_to_be_end ) );
 		this->__end = __new_last;
+	}
+
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign( vector& __c, core::true_type )
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign( vector& __c, core::false_type )
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign_alloc( vector& __c )
+		LLVM_MSTL_NOEXCEPT_V(
+			!__alloc_traits::propagate_on_container_move_assignment::value ||
+			core::is_nothrow_move_assignable_v< allocator_type > );
+
+	/**
+	 * @brief TODO
+	 * 
+	 * @param __c 
+	 * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+	 */
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __copy_assign_alloc( const vector& __c ) {
+		__copy_assign_alloc(
+			__c, core::integral_constant<
+						 bool,
+						 __alloc_traits::propagate_on_container_copy_assignment::value >() );
 	}
 
 	LLVM_MSTL_NORETURN auto __throw_length_error() const {
@@ -923,7 +1035,282 @@ vector< _Tp, _Allocator >::vector( vector&& __x, const core::type_identity_t< al
  *                                                                                   *
  *************************************************************************************/
 
-/********************************		HELPER FUNCTIONS		**************************************/
+/*************************************************************************************		
+ *                                                                                   *
+ *																OPERATOR BEGIN			                               *
+ *                                                                                   *
+ *************************************************************************************/
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE
+		vector< _Tp, _Allocator >&
+		vector< _Tp, _Allocator >::operator=( const vector& __x ) {
+	if ( this != core::addressof( __x ) ) {
+		__copy_assign_alloc( __x );
+		assign( __x.__begin, __x.__end );
+	}
+	return *this;
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE
+		vector< _Tp, _Allocator >&
+		vector< _Tp, _Allocator >::operator=( core::initializer_list< value_type > __il ) {
+	assign( __il.begin(), __il.end() );
+	return *this;
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE
+		vector< _Tp, _Allocator >&
+		vector< _Tp, _Allocator >::operator=( vector&& __x )
+			LLVM_MSTL_NOEXCEPT_V(
+				( __noexcept_move_assign_container< _Allocator, __alloc_traits >::value ) ) {
+	__move_assign(
+		__x,
+		core::integral_constant<
+			bool,
+			__alloc_traits::propagate_on_container_move_assignment::value >() );
+	return *this;
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
+	typename vector< _Tp, _Allocator >::reference
+	vector< _Tp, _Allocator >::operator[]( size_type __n ) LLVM_MSTL_NOEXCEPT {
+	static_assert( __n < size(), "vector[] index out of bounds" );
+	return this->__begin[ __n ];
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
+	typename vector< _Tp, _Allocator >::const_reference
+	vector< _Tp, _Allocator >::operator[]( size_type __n ) const LLVM_MSTL_NOEXCEPT {
+	static_assert( __n < size(), "vector[] index out of bounds" );
+	return this->__begin[ __n ];
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator==( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	const typename vector< _Tp, _Allocator >::size_type __sz = __x.size();
+	return __sz == __y.size() &&
+				 core::equal( __x.begin(), __x.end(), __y.begin() );
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator!=( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	return !( __x == __y );
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator<( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	return core::lexicographical_compare( __x.begin(), __x.end(), __y.begin(), __y.end() );
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator>( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	return __y < __x;
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator<=( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	return !( __y < __x );
+}
+
+/**
+ * @brief TODO
+ * 
+ * @tparam _Tp 
+ * @tparam _Allocator 
+ * @param __x 
+ * @param __y 
+ * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ */
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE bool
+	operator>=( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
+	return !( __x > __y );
+}
+
+/*************************************************************************************		
+ *                                                                                   *
+ *																	OPERATOR END			                               *
+ *                                                                                   *
+ *************************************************************************************/
+
+/*************************************************************************************		
+ *                                                                                   *
+ *																ITERATOR BEGIN			                               *
+ *                                                                                   *
+ *************************************************************************************/
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::begin()
+		LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::iterator {
+	return __make_iter( this->begin() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::begin() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return __make_iter( this->begin() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::end()
+		LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::iterator {
+	return __make_iter( this->end() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::end() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return __make_iter( this->end() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::rbegin()
+		LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::iterator {
+	return reverse_iterator( end() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::rbegin() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return const_reverse_iterator( end() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::rend()
+		LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::iterator {
+	return reverse_iterator( begin() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::rend() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return const_reverse_iterator( begin() );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::cbegin() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return begin();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::cend() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_iterator {
+	return end();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::crbegin() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_reverse_iterator {
+	return rbegin();
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20
+	LLVM_MSTL_TEMPLATE_INLINE auto
+	vector< _Tp, _Allocator >::crend() const
+	LLVM_MSTL_NOEXCEPT->typename vector< _Tp, _Allocator >::const_reverse_iterator {
+	return rend();
+}
+
+
+/*************************************************************************************		
+ *                                                                                   *
+ *																	ITERATOR END			                               *
+ *                                                                                   *
+ *************************************************************************************/
+
+/*************************************************************************************		
+ *                                                                                   *
+ *																 HELPER BEGIN 			                               *
+ *                                                                                   *
+ *************************************************************************************/
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE auto vector< _Tp, _Allocator >::__recommend( size_type __new_size ) const
 	-> typename vector< _Tp, _Allocator >::size_type {
