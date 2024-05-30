@@ -106,9 +106,9 @@ TEST( VECTOR_CONSTRUCTOR, size_construct_with_value_and_allocator ) {
 TEST( VECTOR_CONSTRUCTOR, input_iter_construct ) {
 	uint64_t                                  __v_size = 1000000;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v( __v_range.get(), __v_range.get() + __v_size );
@@ -120,11 +120,11 @@ TEST( VECTOR_CONSTRUCTOR, input_iter_construct ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.size() == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v.at( i ) );
 	}
 }
 
@@ -132,9 +132,9 @@ TEST( VECTOR_CONSTRUCTOR, input_iter_construct_with_allocator ) {
 	uint64_t                                  __v_size = 1000000;
 	core::allocator< int64_t >                __a;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v(
@@ -147,11 +147,11 @@ TEST( VECTOR_CONSTRUCTOR, input_iter_construct_with_allocator ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.size() == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v.at( i ) );
 	}
 }
 
@@ -159,9 +159,9 @@ TEST( VECTOR_CONSTRUCTOR, forward_iter_construct ) {
 	uint64_t                                  __v_size = 1000000;
 	core::allocator< int64_t >                __a;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v(
@@ -176,11 +176,11 @@ TEST( VECTOR_CONSTRUCTOR, forward_iter_construct ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v_forward.end() - __v_forward.begin() ) );
 	ASSERT_TRUE( __v_forward.size() == static_cast< uint64_t >( __v_forward.end() - __v_forward.begin() ) );
 	ASSERT_TRUE( __v_forward.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v_forward.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v_forward.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v_forward.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v_forward.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v_forward.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v_forward.at( i ) );
 	}
 }
 
@@ -188,9 +188,9 @@ TEST( VECTOR_CONSTRUCTOR, forward_iter_construct_with_allocator ) {
 	uint64_t                                  __v_size = 1000000;
 	core::allocator< int64_t >                __a;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v(
@@ -205,11 +205,11 @@ TEST( VECTOR_CONSTRUCTOR, forward_iter_construct_with_allocator ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v_forward.end() - __v_forward.begin() ) );
 	ASSERT_TRUE( __v_forward.size() == static_cast< uint64_t >( __v_forward.end() - __v_forward.begin() ) );
 	ASSERT_TRUE( __v_forward.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v_forward.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v_forward.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v_forward.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v_forward.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v_forward.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v_forward.at( i ) );
 	}
 }
 
@@ -217,9 +217,9 @@ TEST( VECTOR_CONSTRUCTOR, copy_construct ) {
 	uint64_t                                  __v_size = 1000000;
 	core::allocator< int64_t >                __a;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v(
@@ -234,8 +234,8 @@ TEST( VECTOR_CONSTRUCTOR, copy_construct ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v_copy.end() - __v_copy.begin() ) );
 	ASSERT_TRUE( __v_copy.size() == static_cast< uint64_t >( __v_copy.end() - __v_copy.begin() ) );
 	ASSERT_TRUE( __v_copy.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v_copy.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v_copy.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v_copy.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v_copy.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
 		ASSERT_EQ( __v.at( i ), __v_copy.at( i ) );
@@ -246,9 +246,9 @@ TEST( VECTOR_CONSTRUCTOR, copy_construct_with_alloctor ) {
 	uint64_t                                  __v_size = 1000000;
 	core::allocator< int64_t >                __a;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v(
@@ -263,8 +263,8 @@ TEST( VECTOR_CONSTRUCTOR, copy_construct_with_alloctor ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v_copy.end() - __v_copy.begin() ) );
 	ASSERT_TRUE( __v_copy.size() == static_cast< uint64_t >( __v_copy.end() - __v_copy.begin() ) );
 	ASSERT_TRUE( __v_copy.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v_copy.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v_copy.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v_copy.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v_copy.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
 		ASSERT_EQ( __v.at( i ), __v_copy.at( i ) );
@@ -295,9 +295,9 @@ TEST( VECTOR_CONSTRUCTOR, inintialize_construct_with_allocator ) {
 TEST( VECTOR_CONSTRUCTOR, move_construct ) {
 	uint64_t                                  __v_size = 1000000;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v__move( __v_range.get(), __v_range.get() + __v_size );
@@ -316,20 +316,20 @@ TEST( VECTOR_CONSTRUCTOR, move_construct ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.size() == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v.at( i ) );
 	}
 }
 
 TEST( VECTOR_CONSTRUCTOR, move_construct_with_allocator ) {
 	uint64_t                                  __v_size = 1000000;
 	core::uniform_int_distribution< int64_t > __dis( 0, (int64_t) __v_size );
-	std::unique_ptr< int64_t >                __v_range( new int64_t[ __v_size ]{} );
+	std::unique_ptr< int64_t[] >              __v_range( new int64_t[ __v_size ]{} );
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		__v_range.get()[ i ] = distribution( generator );
+		__v_range[ i ] = distribution( generator );
 	}
 
 	nya::vector< int64_t, core::allocator< int64_t > > __v__move( __v_range.get(), __v_range.get() + __v_size );
@@ -349,11 +349,11 @@ TEST( VECTOR_CONSTRUCTOR, move_construct_with_allocator ) {
 	ASSERT_TRUE( __v_size == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.size() == static_cast< uint64_t >( __v.end() - __v.begin() ) );
 	ASSERT_TRUE( __v.capacity() == __v_size );
-	ASSERT_TRUE( __v_range.get()[ 0 ] == *__v.begin() );
-	ASSERT_TRUE( __v_range.get()[ __v_size - 1 ] == *( __v.end() - 1 ) );
+	ASSERT_TRUE( __v_range[ 0 ] == *__v.begin() );
+	ASSERT_TRUE( __v_range[ __v_size - 1 ] == *( __v.end() - 1 ) );
 
 	for ( size_t i = 0; i < __v_size; i++ ) {
-		ASSERT_EQ( __v_range.get()[ i ], __v.at( i ) );
+		ASSERT_EQ( __v_range[ i ], __v.at( i ) );
 	}
 }
 
