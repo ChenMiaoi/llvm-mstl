@@ -37,7 +37,7 @@ function(add_test_module MODULE_NAME)
   if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main -fsanitize=address)
   else()
-  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main)
+  target_link_libraries(${MODULE_NAME} mstl gtest GTest::gtest_main spdlog)
   endif()
   add_test(
     NAME ${MODULE_NAME}
@@ -64,7 +64,7 @@ foreach(TEST_MODULE ${TEST_MODULES})
   if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main -fsanitize=address)
   else()
-  target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main)
+  target_link_libraries(${TEST_MODULE_NAME} mstl gtest GTest::gtest_main spdlog)
   endif()
   add_test(
     NAME ${TEST_MODULE_NAME}
