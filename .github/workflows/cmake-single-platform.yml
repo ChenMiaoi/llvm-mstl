@@ -28,6 +28,9 @@ jobs:
         git submodule init ${{github.workspace}}/deps/gtest
         git submodule update --remote --checkout ${{github.workspace}}/deps/gtest
         git -C ${{github.workspace}}/deps/gtest checkout v1.14.0
+        git submodule init ${{github.workspace}}/deps/spdlog
+        git submodule update --remote --checkout ${{github.workspace}}/deps/spdlog
+        git -C ${{github.workspace}}/deps/spdlog checkout v1.14.0
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

@@ -67,4 +67,9 @@
 	_ClassName( typename _Tag::__allow_ctad... )->_ClassName< _Tag... >
 #endif
 
+// [time level] at [file:function:line]>> msg -- <Thread ID>
+#define LLVM_MSTL_LOGGER_FORMAT_INIT()                             \
+	do {                                                             \
+		spdlog::set_pattern( "%^[%T.%3o %-5l] -- Thread %t>>> %v%$" ); \
+	} while ( 0 )
 #endif//LLVM_MSTL___CONFIG_H
