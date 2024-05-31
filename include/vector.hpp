@@ -22,7 +22,10 @@
 #include "__type_traits/is_allocator.h"
 #include "__type_traits/noexcept_move_assign_container.h"
 #include "__utility/exception_guard.h"
+#include "__utility/logger.h"
 #include "stdexcept.h"
+
+#include "spdlog/spdlog.h"
 
 
 #include <algorithm>
@@ -854,30 +857,9 @@ private:
 	*
 	* @param __n The minimum number of elements to allocate memory for.
 	*/
-	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __vallocate( size_type __n ) -> void {
-		if ( __n > max_size() ) {
-			__throw_length_error();
-		}
-		/**
-		 * @brief allocator_at_least tries to allocate a storage for at least n value_type objects, 
-		 * and provides a fallback mechanism that allocates a storage for exact n objects.
-		 *
-		 * @param ptr a pointer of type Pointer which is typically used for the `address of the first element` 
-		 * in the storage allocated by allocate_at_least
-		 * @param count a value of type SizeType which is typically used for the `actual number of elements` 
-		 * in the storage allocated by allocate_at_least
-		 * 
-		 * @return return the `allocation_result<class Pointer, class SizeType = std::size_t>`
-		 */
-		auto __allocation = __allocate_at_least( __alloc(), __n );
-		__begin           = __allocation.ptr;            //<--- causes `__begin` to point to the address of the memory allocated by the allocator
-		__end             = __allocation.ptr;            //<--- causes' __end 'to point to the address of the memory allocated by the allocator
-		__end_cap()       = __begin + __allocation.count;//<--- '__end_capm.first' holds the reference to '__end',
-																										 //<--- so here '__end_cap()' is modified to point to the last position of the element's last position
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __vallocate( size_type __n ) -> void;
 
-		//! here `__annotate_new` doing nothing
-		__annotate_new( 0 );
-	}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __vdeallocate() LLVM_MSTL_NOEXCEPT;
 
 	/**
 	 * TODO
@@ -1074,6 +1056,11 @@ private:
 			__c, core::integral_constant<
 						 bool,
 						 __alloc_traits::propagate_on_container_copy_assignment::value >() );
+	}
+
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __copy_assign_alloc( const vector& __c, core::true_type ) {
+		if ( __alloc() != __c.__alloc() ) __vdeallocate();
+		__alloc() = __c.__alloc();
 	}
 
 	LLVM_MSTL_NORETURN auto __throw_length_error() const {
@@ -1333,7 +1320,12 @@ template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
 	typename vector< _Tp, _Allocator >::reference
 	vector< _Tp, _Allocator >::operator[]( size_type __n ) LLVM_MSTL_NOEXCEPT {
-	static_assert( __n < size(), "vector[] index out of bounds" );
+	// static_assert( __n < size(), "vector[] index out of bounds" );
+	if ( __n >= size() ) {
+		spdlog::error( "vector[] index out of bounds, __n[{}] >= size()[{}]", __n, size() );
+		__throw_out_of_range();
+	}
+	// LLVM_MSTL_ERROR( "vector[] index out of bounds, __n[{}] >= size()[{}]", __n, size() );
 	return this->__begin[ __n ];
 }
 
@@ -1341,18 +1333,31 @@ template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE
 	typename vector< _Tp, _Allocator >::const_reference
 	vector< _Tp, _Allocator >::operator[]( size_type __n ) const LLVM_MSTL_NOEXCEPT {
-	static_assert( __n < size(), "vector[] index out of bounds" );
+	// static_assert( __n < size(), "vector[] index out of bounds" );
+	if ( __n >= size() ) {
+		spdlog::error( "vector[] index out of bounds, __n[{}] >= size()[{}]", __n, size() );
+		__throw_out_of_range();
+	}
 	return this->__begin[ __n ];
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Equality comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` for equality. It returns `true` 
+ * if the vectors have the same size and their corresponding elements are equal, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if the vectors are equal, `false` otherwise.
+ *
+ * @remark The operator compares the sizes of the vectors using their `size()` member functions. 
+ * If the sizes are not equal, it returns `false`. Otherwise, it uses the `core::equal()` function to 
+ * compare the elements of the vectors. The `core::equal()` function compares the elements of 
+ * the ranges [__x.begin(), __x.end()) and [__y.begin(), __y.end()) for equality. 
+ * If all corresponding elements are equal, the operator returns `true`; otherwise, it returns `false`.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
@@ -1364,13 +1369,16 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Inequality comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` for inequality. It returns `true` 
+ * if the vectors are not equal, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if the vectors are not equal, `false` otherwise.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
@@ -1380,13 +1388,21 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Less-than comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` lexicographically. It returns `true` 
+ * if `__x` is lexicographically less than `__y`, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if `__x` is lexicographically less than `__y`, `false` otherwise.
+ *
+ * @remark The operator uses the `core::lexicographical_compare()` function to 
+ * perform the lexicographical comparison between the elements of the vectors. 
+ * It compares the ranges [__x.begin(), __x.end()) and [__y.begin(), __y.end()). 
+ * If __x is lexicographically less than __y, it returns `true`; otherwise, it returns `false`.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
@@ -1396,13 +1412,16 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Greater-than comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` lexicographically. It returns `true` 
+ * if `__x` is lexicographically greater than `__y`, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if `__x` is lexicographically greater than `__y`, `false` otherwise.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
@@ -1412,13 +1431,16 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Less-than or equal-to comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` lexicographically. It returns `true` 
+ * if `__x` is lexicographically less than or equal to `__y`, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if `__x` is lexicographically less than or equal to `__y`, `false` otherwise.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
@@ -1428,19 +1450,22 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 }
 
 /**
- * @brief TODO
- * 
- * @tparam _Tp 
- * @tparam _Allocator 
- * @param __x 
- * @param __y 
- * @return LLVM_MSTL_CONSTEXPR_SINCE_CXX20 
+ * @brief Greater-than or equal-to comparison operator for vectors.
+ *
+ * This operator compares two vectors `__x` and `__y` lexicographically. It returns `true` 
+ * if `__x` is lexicographically greater than or equal to `__y`, and `false` otherwise.
+ *
+ * @tparam _Tp The value type of the vectors.
+ * @tparam _Allocator The allocator type used for memory management.
+ * @param __x The first vector to compare.
+ * @param __y The second vector to compare.
+ * @return `true` if `__x` is lexicographically greater than or equal to `__y`, `false` otherwise.
  */
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20
 	LLVM_MSTL_TEMPLATE_INLINE bool
 	operator>=( const vector< _Tp, _Allocator >& __x, const vector< _Tp, _Allocator >& __y ) {
-	return !( __x > __y );
+	return !( __x < __y );
 }
 
 /*************************************************************************************		
@@ -1748,6 +1773,42 @@ vector< _Tp, _Allocator >::insert( const_iterator __position, const_reference __
  *																 HELPER BEGIN 			                               *
  *                                                                                   *
  *************************************************************************************/
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__vallocate( size_type __n ) -> void {
+	if ( __n > max_size() ) {
+		__throw_length_error();
+	}
+	/**
+	* @brief allocator_at_least tries to allocate a storage for at least n value_type objects, 
+	* and provides a fallback mechanism that allocates a storage for exact n objects.
+	*
+	* @param ptr a pointer of type Pointer which is typically used for the `address of the first element` 
+	* in the storage allocated by allocate_at_least
+	* @param count a value of type SizeType which is typically used for the `actual number of elements` 
+	* in the storage allocated by allocate_at_least
+	* 
+	* @return return the `allocation_result<class Pointer, class SizeType = std::size_t>`
+	*/
+	auto __allocation = __allocate_at_least( __alloc(), __n );
+	__begin           = __allocation.ptr;            //<--- causes `__begin` to point to the address of the memory allocated by the allocator
+	__end             = __allocation.ptr;            //<--- causes' __end 'to point to the address of the memory allocated by the allocator
+	__end_cap()       = __begin + __allocation.count;//<--- '__end_capm.first' holds the reference to '__end',
+																									 //<--- so here '__end_cap()' is modified to point to the last position of the element's last position
+
+	//! here `__annotate_new` doing nothing
+	__annotate_new( 0 );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__vdeallocate() LLVM_MSTL_NOEXCEPT {
+	if ( this->__begin != nullptr ) {
+		clear();
+		__alloc_traits::deallocate( this->__alloc(), this->__begin, capacity() );
+		this->__begin = this->__end = this->__end_cap() = nullptr;
+	}
+}
+
 template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 LLVM_MSTL_TEMPLATE_INLINE auto vector< _Tp, _Allocator >::__recommend( size_type __new_size ) const
 	-> typename vector< _Tp, _Allocator >::size_type {
