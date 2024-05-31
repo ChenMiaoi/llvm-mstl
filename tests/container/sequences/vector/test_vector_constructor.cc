@@ -1,3 +1,4 @@
+#include "__config.h"
 #include "__iterator/wrap_iter.h"
 #include "vector.hpp"
 #include "gtest/gtest.h"
@@ -358,6 +359,7 @@ TEST( VECTOR_CONSTRUCTOR, move_construct_with_allocator ) {
 }
 
 GTEST_API_ int main( int argc, char* argv[] ) {
+	LLVM_MSTL_LOGGER_FORMAT_INIT();
 	testing::InitGoogleTest( &argc, argv );
 	return RUN_ALL_TESTS();
 }

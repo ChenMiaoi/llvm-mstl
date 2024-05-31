@@ -36,22 +36,24 @@ endif()
 
 set(GTEST_VERSION "v1.14.0")
 set(GTEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest)
+set(SPDLOG_VERSION "v1.14.1")
+set(SPDLOG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/deps/spdlog)
 
-function(update_gtest_version SUBMODULE_PATH SUBMODULE_TAG) 
+function(update_module_version SUBMODULE_PATH SUBMODULE_TAG) 
     execute_process(
         COMMAND git -C ${SUBMODULE_PATH} describe --tags --abbrev=0
-        OUTPUT_VARIABLE GTEST_CURRENT_VERSION
+        OUTPUT_VARIABLE MODULE_CURRENT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE
         RESULT_VARIABLE GIT_RESULT
     )
-    if(NOT GTEST_CURRENT_VERSION STREQUAL GTEST_VERSION)
+    if(NOT MODULE_CURRENT_VERSION STREQUAL SUBMODULE_TAG)
         execute_process(
             COMMAND git -C ${SUBMODULE_PATH} checkout ${SUBMODULE_TAG}
             RESULT_VARIABLE GIT_RESULT
         )
         message(STATUS "Updating Git submodule ${SUBMODULE_PATH} to ${SUBMODULE_TAG}")
     else()
-        message(STATUS "Git submodule GTest is ${SUBMODULE_TAG} now")
+        message(STATUS "Git submodule ${SUBMODULE_PATH} is ${SUBMODULE_TAG} now")
     endif()
     
     if(NOT GIT_RESULT EQUAL "0")
@@ -72,17 +74,40 @@ if(NOT EXISTS ${GTEST_ROOT})
         RESULT_VARIABLE GTEST_RESULT
     )
 
-    update_gtest_version(${GTEST_ROOT} ${GTEST_VERSION})
+    update_module_version(${GTEST_ROOT} ${GTEST_VERSION})
 
     if(GTEST_RESULT)
         message(FATAL_ERROR "Failed to download and update Google Test.")
     endif()
 else()
-    update_gtest_version(${GTEST_ROOT} ${GTEST_VERSION})
+    update_module_version(${GTEST_ROOT} ${GTEST_VERSION})
 endif()
-
 add_subdirectory(${GTEST_ROOT})
 include_directories(${gtest_SOURCE_DIR}/include)
+
+if(NOT EXISTS ${SPDLOG_ROOT})
+set(GTEST_DOWNLOAD_COMMAND
+        "git submodule deinit -f deps/spdlog"
+        "git submodule init deps/spdlog"
+        "git submodule update --remote --checkout deps/spdlog"
+    )
+
+    execute_process(
+        COMMAND ${GTEST_DOWNLOAD_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE SPDLOG_RESULT
+    )
+
+    update_module_version(${SPDLOG_ROOT} ${SPDLOG_VERSION})
+
+    if(SPDLOG_RESULT)
+        message(FATAL_ERROR "Failed to download and update spdlog module.")
+    endif()
+else()
+    update_module_version(${SPDLOG_ROOT} ${SPDLOG_VERSION})
+endif()
+add_subdirectory(${SPDLOG_ROOT})
+include_directories(${SPDLOG_ROOT}/include)
 
 option(gtest_force_shared_crt "Use shared (DLL) run-time lib even when Google Test is built as static lib." ON)
 
@@ -155,5 +180,5 @@ add_executable(llvm-mstl main.cc)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(llvm-mstl mstl -fsanitize=address)
 else()
-    target_link_libraries(llvm-mstl mstl)
+    target_link_libraries(llvm-mstl mstl spdlog)
 endif()
