@@ -22,7 +22,7 @@
 #include "__type_traits/is_allocator.h"
 #include "__type_traits/noexcept_move_assign_container.h"
 #include "__utility/exception_guard.h"
-#include "__utility/logger.h"
+// #include "__utility/logger.h"
 #include "stdexcept.h"
 
 #include "spdlog/spdlog.h"
