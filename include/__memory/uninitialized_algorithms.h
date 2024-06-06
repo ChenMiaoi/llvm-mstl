@@ -153,17 +153,36 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __uninitialized_allocator_copy(
 
 
 /**
- * @brief TODO
- * 
- * @tparam _Alloc 
- * @tparam _Iter1 
- * @tparam _Send1 
- * @tparam _Iter2 
- * @param __alloc 
- * @param __first1 
- * @param __last1 
- * @param __first2 
- * @return _Iter2 
+ * @brief Move-construct objects using an allocator and uninitialized memory if noexcept.
+ *
+ * This function is used to move-construct objects from the range `[__first1, __last1)` using the allocator
+ * and uninitialized memory starting at the address pointed to by `__first2`. It only performs move construction
+ * if the move constructor of the object type is declared as `noexcept`.
+ *
+ * @tparam _Alloc The allocator type.
+ * @tparam _Iter1 The input iterator type for the source range.
+ * @tparam _Sent1 The sentinel type for the source range.
+ * @tparam _Iter2 The output iterator type for the destination range.
+ * @param __alloc The allocator reference.
+ * @param __first1 The input iterator pointing to the beginning of the source range.
+ * @param __last1 The sentinel iterator pointing to the end of the source range.
+ * @param __first2 The output iterator pointing to the beginning of the destination range.
+ * @return The output iterator pointing to the end of the constructed objects in the destination range.
+ *
+ * @remark The function first checks if the specified type meets the requirements of `Cpp17MoveInsertable`. 
+ * If not, a static assertion fails.
+ *
+ * The function then creates a guard object (`__guard`) to ensure proper destruction of allocated objects in case of an exception. 
+ * It uses the `_AllocatorDestroyRangeReverse` helper class to destroy the objects in reverse order.
+ *
+ * The function iterates over the source range `[__first1, __last1)` and uses the allocator to 
+ * move-construct objects at the uninitialized memory locations starting from `__first2`. 
+ * It calls `core::allocator_traits<_Alloc>::construct()` to construct the objects by invoking their move constructor 
+ * if it is declared as `noexcept`. It increments both `__first1` and `__first2` after each construction.
+ *
+ * Finally, the `__guard.__complete()` function is called to indicate that the construction phase is complete. 
+ * If an exception occurs during construction and the code exits directly without passing through `__guard.__complete()`, 
+ * the destruction procedure will be executed to release the resources in the range `[__last, __first2)`.
  */
 template < typename _Alloc, typename _Iter1, typename _Send1, typename _Iter2 >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __uninitialized_allocator_move_if_noexcept(
@@ -175,9 +194,13 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __uninitialized_allocator_move_if_noexcept(
 	auto __destruct_first = __first2;
 	auto __guard          = __make_exception_guard(
     _AllocatorDestroyRangeReverse< _Alloc, _Iter2 >( __alloc, __destruct_first, __first2 ) );
+	//!<--- When an exception occurs in the logical code below that
+	//!<--- causes the code to exit directly (without passing through '__guard.__complete()'),
+	//!<--- then the destruction procedure is executed, so that the resources
+	//!<--- in the requested [__last, __first2) interval can be released normally
 
 	while ( __first1 != __last1 ) {
-		core::allocator_traits< _Alloc >::construct( __alloc, core::to_address( __first2 ), *__first1 );
+		core::allocator_traits< _Alloc >::construct( __alloc, core::to_address( __first2 ), core::move_if_noexcept( *__first1 ) );
 		++__first1;
 		++__first2;
 	}

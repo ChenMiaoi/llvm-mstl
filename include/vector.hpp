@@ -728,11 +728,28 @@ public:
 	 *															 	CAPACITY BEGIN			               	               *
 	 *                                                                                   *
 	 *************************************************************************************/
-	// TODO
+
+	/**
+	* @brief Checks if the vector is empty.
+	*
+	* @ref https://en.cppreference.com/w/cpp/container/vector/empty
+	* 
+	* This member function checks whether the vector is empty, i.e., it has no elements.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @return `true` if the vector is empty, `false` otherwise.
+	*
+	* @remark The function compares the internal `__begin` and `__end` pointers of the vector. 
+	* If they are equal, it means the vector has no elements and it returns `true`. 
+	* Otherwise, it returns `false`.
+	*/
 	LLVM_MSTL_NODISCARD
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto empty() const LLVM_MSTL_NOEXCEPT->bool;
 	/**
 	* @brief Returns the size of the vector.
+	* 
+	* @ref https://en.cppreference.com/w/cpp/container/vector/size 
 	*
 	* This member function returns the number of elements in the vector by subtracting the pointer `__begin`
 	* from the pointer `__end` and casting the result to the size type `size_type`.
@@ -740,10 +757,49 @@ public:
 	* @return The number of elements in the vector.
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto size() const LLVM_MSTL_NOEXCEPT->size_type;
+	/**
+	* @brief Returns the maximum possible size of the vector.
+	*
+	* @ref https://en.cppreference.com/w/cpp/container/vector/max_size 
+	*
+	* This member function returns the maximum number of elements that the vector can hold. 
+	* It takes into account the maximum size supported by the allocator and 
+	* the maximum representable value of the difference type.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @return The maximum possible size of the vector.
+	*
+	* @remark The function uses the `__alloc_traits::max_size()` function to 
+	* retrieve the maximum size supported by the allocator. It compares this value with 
+	* the maximum representable value of the difference type 
+	* (`core::numeric_limits<difference_type>::max()`) and returns the smaller value. 
+	* This ensures that the maximum possible size of the vector is not exceeded.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto max_size() const LLVM_MSTL_NOEXCEPT->size_type;
+	/**
+	* @brief Reserves storage space for at least the specified number of elements.
+	* 
+	* @ref https://en.cppreference.com/w/cpp/container/vector/reserve 
+	*
+	* This member function reserves storage space in the vector to accommodate at least the specified number of elements. 
+	* If the requested capacity is greater than the current capacity of the vector, reallocation occurs.
+	*  However, if the requested capacity is greater than the maximum size supported by the vector, 
+	* a length_error exception is thrown.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type used for memory management.
+	* @param __n The minimum capacity to reserve.
+	*
+	* @remark The function first checks if the requested capacity (`__n`) is greater than the current capacity of the vector. 
+	* If so, it proceeds to check if the requested capacity is greater than the maximum size supported by the vector using the `max_size()` function. 
+	* If the requested capacity is greater than the maximum size, a `length_error` exception is thrown.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto reserve( size_type __n );
 	/**
 	* @brief Returns the capacity of the vector.
+	*
+	* @ref https://en.cppreference.com/w/cpp/container/vector/capacity  
 	*
 	* This member function returns the capacity of the vector, which represents the maximum number of elements
 	* that the vector can hold without reallocating memory. The capacity is calculated by subtracting the pointer
@@ -752,6 +808,23 @@ public:
 	* @return The capacity of the vector.
 	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto capacity() const LLVM_MSTL_NOEXCEPT->size_type;
+	/**
+	* @brief Reduces the capacity of the vector to fit its size.
+	*
+	* @ref https://en.cppreference.com/w/cpp/container/vector/shrink_to_fit
+	*
+	* This member function reduces the capacity of the vector to match its size. 
+	* If the current capacity is greater than the size of the vector, reallocation occurs to release the unused memory.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type used for memory management.
+	*
+	* @remark The function first checks if the current capacity (`capacity()`) is greater than the size (`size()`) of the vector. 
+	* If so, it creates a new split buffer (`__v`) with the size and size as the capacity, and the allocator. 
+	* It then swaps the internal circular buffer of the vector with the new split buffer using the `__swap_out_circular_buffer()` function.
+	*
+	* @note The `__swap_out_circular_buffer()` function is not defined in the provided code snippet and should be implemented elsewhere.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto shrink_to_fit() LLVM_MSTL_NOEXCEPT;
 
 	/*************************************************************************************		
@@ -780,7 +853,7 @@ public:
 					value_type,
 					typename core::iterator_traits< _InputIterator >::reference >,
 			int > = 0 >
-	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto insert( const_iterator __position, _InputIterator __fist, _InputIterator __last );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto insert( const_iterator __position, _InputIterator __fist, _InputIterator __last ) -> iterator;
 	template <
 		typename _ForwardIterator,
 		core::enable_if_t<
@@ -789,7 +862,7 @@ public:
 					value_type,
 					typename core::iterator_traits< _ForwardIterator >::reference >,
 			int > = 0 >
-	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto insert( const_iterator __position, _ForwardIterator __fist, _ForwardIterator __last );
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto insert( const_iterator __position, _ForwardIterator __fist, _ForwardIterator __last ) -> iterator;
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto insert( const_iterator __position, core::initializer_list< value_type > __il ) -> iterator;
 
 	template < typename... _Args >
@@ -867,12 +940,60 @@ private:
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __recommend( size_type __new_size ) const -> size_type;
 
 	/**
-	 * TODO 
-	 */
+	* @brief Swap out the circular buffer with another split buffer by performing move construction.
+	*
+	* This member function is used to swap out the circular buffer of the vector with another split buffer by performing move construction.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type of the vector.
+	* @param __v The split buffer to swap with.
+	*
+	* @remark The function first calls `__annotate_delete()` to indicate that the deletion of the circular buffer is annotated but no actual work is done.
+	*
+	* It then defines a reverse iterator type `_RevIter` using `core::reverse_iterator` to iterate over the circular buffer in reverse order.
+	*
+	* The function uses `__uninitialized_allocator_move_if_noexcept()` to move-construct the elements from the circular buffer into the split buffer. 
+	* It passes the allocator reference `__alloc()`, and the reverse iterators for the circular buffer and the split buffer. 
+	* The move construction is performed only if the move constructor of the value type is declared as `noexcept`. 
+	* The resulting split buffer is assigned to `__v.__begin`.
+	*
+	* The function then swaps the pointers `__begin`, `__end`, and `__end_cap()` of the vector 
+	* with the corresponding pointers in the split buffer using `core::swap()`. 
+	* This effectively swaps the circular buffer with the split buffer.
+	*
+	* Finally, the function sets `__v.__first` to `__v.__begin` and calls `__annotate_new(size())` to annotate the creation of new elements, 
+	* but no actual work is done.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __swap_out_circular_buffer( __split_buffer< value_type, allocator_type& >& __v );
 	/**
-	 * TODO 
-	 */
+	* @brief Swap out the circular buffer with another split buffer at a specified pointer by performing move construction.
+	*
+	* This member function is used to swap out the circular buffer of the vector with another split buffer at a specified pointer by performing move construction.
+	*
+	* @tparam _Tp The value type of the vector.
+	* @tparam _Allocator The allocator type of the vector.
+	* @param __v The split buffer to swap with.
+	* @param __p The pointer indicating the position of the split.
+	* @return The pointer to the beginning of the original circular buffer.
+	*
+	* @remark The function first calls `__annotate_delete()` to indicate that the deletion of the circular buffer is annotated but no actual work is done.
+	*
+	* It then declares a pointer `__r` to store the beginning of the original circular buffer.
+	* 
+	* The function defines a reverse iterator type `_RevIter` using `core::reverse_iterator` to iterate over the circular buffer and split buffer in reverse order.
+	*
+	* The function uses `__uninitialized_allocator_move_if_noexcept()` twice to move-construct the elements from the circular buffer 
+	* and the split buffer into the respective locations in the split buffer and the circular buffer. It passes the allocator reference `__alloc()`, 
+	* and the reverse iterators for the circular buffer, split buffer, and the specified pointer `__p`. 
+	* The move construction is performed only if the move constructor of the value type is declared as `noexcept`. 
+	* The resulting split buffer is assigned to `__v.__begin`, and the resulting circular buffer is assigned to `__v.__end`.
+	*
+	* The function then swaps the pointers `__begin`, `__end`, and `__end_cap()` of the vector 
+	* with the corresponding pointers in the split buffer using `core::swap()`. This effectively swaps the circular buffer with the split buffer.
+	*
+	* Finally, the function sets `__v.__first` to `__v.__begin`, calls `__annotate_new(size())` to annotate the creation of new elements, 
+	* and returns the pointer `__r` which points to the beginning of the original circular buffer.
+	*/
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __swap_out_circular_buffer( __split_buffer< value_type, allocator_type& >& __v, pointer __p ) -> pointer;
 
 	/**
@@ -923,6 +1044,13 @@ private:
 
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_delete() const LLVM_MSTL_NOEXCEPT {
 		__annotate_contiguous_container( data(), data() + capacity(), data() + size(), data() + capacity() );
+	}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_increase( size_type __n ) const LLVM_MSTL_NOEXCEPT {
+		static_cast< void >( __n );
+		// __annotate_contiguous_container( data() + size(), data() + size() + __n );
+	}
+	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __annotate_shrink( size_type __n ) const LLVM_MSTL_NOEXCEPT {
+		static_cast< void >( __n );
 	}
 
 	/**
@@ -1037,9 +1165,9 @@ private:
 
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_range( pointer __from_s, pointer __from_e, pointer __to );
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign( vector& __c, core::true_type )
-		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > );
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > ) -> void;
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign( vector& __c, core::false_type )
-		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > );
+		LLVM_MSTL_NOEXCEPT_V( core::is_nothrow_move_assignable_v< allocator_type > ) -> void;
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto __move_assign_alloc( vector& __c )
 		LLVM_MSTL_NOEXCEPT_V(
 			!__alloc_traits::propagate_on_container_move_assignment::value ||
@@ -1626,7 +1754,11 @@ LLVM_MSTL_TEMPLATE_INLINE
 	LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
 	vector< _Tp, _Allocator >::back() LLVM_MSTL_NOEXCEPT
 		->vector< _Tp, _Allocator >::reference {
-	static_assert( !empty(), "back() called on an empty vector" );
+	// static_assert( !empty(), "back() called on an empty vector" );
+	if ( empty() ) {
+		spdlog::error( "back() called on an empty vector" );
+		__throw_length_error();
+	}
 	return *( this->__end - 1 );
 }
 
@@ -1713,8 +1845,8 @@ template < typename _Tp, typename _Allocator >
 LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
 vector< _Tp, _Allocator >::shrink_to_fit() LLVM_MSTL_NOEXCEPT {
 	if ( capacity() > size() ) {
-		allocator_type&                              __a = this->__alloc();
-		__split_buffer< value_type, allocator_type > __v( size(), size(), __a );
+		allocator_type&                               __a = this->__alloc();
+		__split_buffer< value_type, allocator_type& > __v( size(), size(), __a );
 		__swap_out_circular_buffer( __v );
 	}
 }
@@ -1736,6 +1868,7 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
 vector< _Tp, _Allocator >::clear() LLVM_MSTL_NOEXCEPT {
 	size_type __old_size = size();
 	__clear();
+	__annotate_shrink( __old_size );
 }
 
 template < typename _Tp, typename _Allocator >
@@ -1745,7 +1878,7 @@ vector< _Tp, _Allocator >::insert( const_iterator __position, const_reference __
 	pointer __p = this->__begin + ( __position - begin() );
 	if ( !core::is_constant_evaluated() && this->__end < this->__end_cap() ) {
 		if ( __p == this->__end ) {
-			__construct_at_end( __x );
+			__construct_one_at_end( (size_t) __x );
 		} else {
 			__move_range( __p, this->__end, __p + 1 );
 			const_pointer __xr = core::pointer_traits< const_pointer >::pointer_to( __x );
@@ -1755,11 +1888,150 @@ vector< _Tp, _Allocator >::insert( const_iterator __position, const_reference __
 		}
 	} else {
 		allocator_type&                               __a = this->__alloc();
-		__split_buffer< value_type, allocator_type& > __v( __recommend( size() + 1 ), __p - this->__begin, __a );
+		__split_buffer< value_type, allocator_type& > __v(
+			__recommend( size() + 1 ), (size_t) ( __p - this->__begin ), __a );
 		__v.push_back( __x );
 		__p = __swap_out_circular_buffer( __v, __p );
 	}
 	return __make_iter( __p );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::insert( const_iterator __position, value_type&& __x )
+	-> typename vector< _Tp, _Allocator >::iterator {
+	pointer __p = this->__begin + ( __position - begin() );
+	if ( this->__end < this->__end_cap() ) {
+		if ( __p == this->__end ) {
+			__construct_one_at_end( static_cast< size_type >( core::move( __x ) ) );
+		} else {
+			__move_range( __p, this->__end, __p + 1 );
+			*__p = core::move( __x );
+		}
+	} else {
+		allocator_type&                               __a = this->__alloc();
+		__split_buffer< value_type, allocator_type& > __v( __recommend( size() + 1 ), (size_t) ( __p - this->__begin ), __a );
+		__v.push_back( core::move( __x ) );
+		__p = __swap_out_circular_buffer( __v, __p );
+	}
+	return __make_iter( __p );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::insert( const_iterator __position, size_type __n, const_reference __x )
+	-> typename vector< _Tp, _Allocator >::iterator {
+	pointer __p = this->__begin + ( __position - begin() );
+	if ( __n > 0 ) {
+		if ( !core::is_constant_evaluated() && __n <= static_cast< size_type >( this->__end_cap() - this->__end ) ) {
+			size_type __old_n    = __n;
+			pointer   __old_last = this->__end;
+			if ( __n > static_cast< size_type >( this->__end - __p ) ) {
+				size_type __cx = __n - static_cast< size_type >( this->__end - __p );
+				__construct_at_end( __cx, __x );
+				__n -= __cx;
+			}
+			if ( __n > 0 ) {
+				__move_range( __p, __old_last, __p + __old_n );
+				const_pointer __xr = core::pointer_traits< const_pointer >::pointer_to( __x );
+				if ( __p <= __xr && __xr < this->__end ) {
+					__xr += __old_n;
+					core::fill_n( __p, __n, *__xr );
+				}
+			}
+		} else {
+			allocator_type&                               __a = this->__alloc();
+			__split_buffer< value_type, allocator_type& > __v(
+				__recommend( size() + __n ), static_cast< size_type >( __p - this->__begin ), __a );
+			__v.__construct_at_end( __n, __x );
+			__p = __swap_out_circular_buffer( __v, __p );
+		}
+	}
+	return __make_iter( __p );
+}
+
+template < class _Tp, class _Allocator >
+template <
+	class _InputIterator,
+	core::enable_if_t<
+		__is_exactly_cpp17_input_iterator< _InputIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _InputIterator >::reference >,
+		int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::insert( const_iterator __position, _InputIterator __first, _InputIterator __last )
+	-> typename vector< _Tp, _Allocator >::iterator {
+	difference_type __off      = __position - begin();
+	pointer         __p        = this->__begin + __off;
+	allocator_type& __a        = this->__alloc();
+	pointer         __old_last = this->__end;
+	for ( ; this->__end != this->__end_cap() && __first != __last; ++__first ) {
+		__construct_one_at_end( *__first );
+	}
+	__split_buffer< value_type, allocator_type& > __v( __a );
+	if ( __first != __last ) {
+		__v.__construct_at_end( __first, __last );
+		difference_type __old_size = __old_last - this->__begin;
+		difference_type __old_p    = __p - this->__begin;
+		reserve( __recommend( size() + __v.size() ) );
+		__p        = this->__begin + __old_p;
+		__old_last = this->__begin + __old_size;
+	}
+	__p = core::rotate( __p, __old_last, this->__end );
+	insert( __make_iter( __p ), core::make_move_iterator( __v.begin() ), core::make_move_iterator( __v.end() ) );
+	return begin() + __off;
+}
+
+template < class _Tp, class _Allocator >
+template <
+	class _ForwardIterator,
+	core::enable_if_t<
+		__is_cpp17_forward_iterator< _ForwardIterator >::value &&
+			core::is_constructible_v<
+				_Tp,
+				typename core::iterator_traits< _ForwardIterator >::reference >,
+		int > >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::insert( const_iterator __position, _ForwardIterator __first, _ForwardIterator __last )
+	-> typename vector< _Tp, _Allocator >::iterator {
+	pointer         __p = this->__begin + ( __position - begin() );
+	difference_type __n = core::distance( __first, __last );
+
+	if ( __n > 0 ) {
+		if ( __n <= this->__end_cap() - this->__end ) {
+			size_type        __old_n    = static_cast< size_type >( __n );
+			pointer          __old_last = this->__end;
+			_ForwardIterator __m        = __last;
+			difference_type  __dx       = this->__end - __p;
+			if ( __n > __dx ) {
+				__m                    = __first;
+				difference_type __diff = this->__end - __p;
+				core::advance( __m, __diff );
+				__construct_at_end( __m, __last, static_cast< size_type >( __n - __diff ) );
+				__n = __dx;
+			}
+			if ( __n > 0 ) {
+				__move_range( __p, __old_last, __p + __old_n );
+				core::copy( __first, __m, __p );
+			}
+		} else {
+			allocator_type&                               __a = this->__alloc();
+			__split_buffer< value_type, allocator_type& > __v(
+				__recommend( size() + (size_type) __n ), static_cast< size_type >( __p - this->__begin ), __a );
+			__v.__construct_at_end( __first, __last );
+			__p = __swap_out_circular_buffer( __v, __p );
+		}
+	}
+
+	return __make_iter( __p );
+}
+
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::insert( const_iterator __position, core::initializer_list< value_type > __il )
+	-> typename vector< _Tp, _Allocator >::iterator {
+	return insert( __position, __il.begin(), __il.end() );
 }
 
 /*************************************************************************************		
@@ -1908,6 +2180,20 @@ LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto vector< _Tp, _Allocator >::__emplace_back_s
 	__swap_out_circular_buffer( __v );
 }
 
+template < typename _Tp, typename _Allocator >
+LLVM_MSTL_CONSTEXPR_SINCE_CXX20 auto
+vector< _Tp, _Allocator >::__move_range( pointer __from_s, pointer __from_e, pointer __to ) {
+	pointer         __old_last = this->__end;
+	difference_type __n        = __old_last - __to;
+	{
+		pointer               __i = __from_s + __n;
+		_ConstructTransaction __tx( *this, static_cast< size_type >( __from_e - __i ) );
+		for ( pointer __pos = __tx.__pos; __i < __from_e; ++__i, (void) ++__pos, __tx.__pos = __pos ) {
+			__alloc_traits::construct( this->__alloc(), core::to_address( __pos ), core::move( *__i ) );
+		}
+	}
+	core::move_backward( __from_s, __from_s + __n, __old_last );
+}
 
 template < typename _Tp, typename _Allocator >
 template < typename... _Args >
