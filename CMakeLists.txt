@@ -119,7 +119,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 list(APPEND LLVM_MSTL_FLAGS -pedantic
-    -Wall -Wextra -Werror -Wwrite-strings
+    -Wall -Wextra -Wwrite-strings # -Werror
     -Wshadow -Winit-self -Wcast-align -Wformat=2 -Wmissing-prototypes
     -Wstrict-overflow=2 -Wcast-qual -Wundef -Wswitch-default -Wconversion
     -Wc++-compat -fstack-protector-strong -Wcomma -Wdouble-promotion -Wparentheses

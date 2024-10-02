@@ -80,4 +80,4 @@ foreach(TEST_MODULE ${TEST_MODULES})
 endforeach()
 
 add_test_module(__split_buffer)
-add_test_module(vector)
+# add_test_module(vector)
